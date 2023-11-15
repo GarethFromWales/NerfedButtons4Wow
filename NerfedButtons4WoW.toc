@@ -1,0 +1,4 @@
+## Interface: 11200
+## Title: NerfedButtons for Vanilla WoW
+## Notes: Priority based conditional sequencer for Vanilla WoW.
+NB.xml

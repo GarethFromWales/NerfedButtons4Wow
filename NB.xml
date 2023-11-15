@@ -1,0 +1,24 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+
+  <Script file="NB.lua" />
+  <Script file="Util.lua" />
+  <Script file="Checks.lua" />
+
+  <GameTooltip name="NBTooltip" frameStrata="TOOLTIP" hidden="true" parent="UIParent" inherits="GameTooltipTemplate"/>
+
+  <!-- Frame to handle all core events -->
+  <Frame name="NerfedButtonsMainFrame" parent="UIParent" toplevel="true" enableMouse="true">
+
+    <Scripts>
+      <OnLoad>
+        this:RegisterEvent("VARIABLES_LOADED");
+        self = {};
+      </OnLoad>
+      <OnEvent>
+        NerfedButtons_EventHandler();
+      </OnEvent>
+    </Scripts>
+  </Frame>
+
+
+</Ui>
