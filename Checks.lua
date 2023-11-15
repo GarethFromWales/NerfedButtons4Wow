@@ -1,3 +1,8 @@
+local DruidManaLib = AceLibrary("DruidManaLib-1.0")
+
+-----------------------------------------
+-- Check: Health
+--
 function NB.check_health(unit, healthTest)
 
     -- get health % of unit
@@ -9,7 +14,7 @@ function NB.check_health(unit, healthTest)
     if not NB.isCharInList(modifier, charList) then
         modifier = "="
     end
-    local healthTest = string.sub(healthTest, 2)
+    healthTest = string.sub(healthTest, 2)
     
     if modifier == "=" then
         if tonumber(actualHealth) == tonumber(healthTest) then
@@ -30,6 +35,79 @@ function NB.check_health(unit, healthTest)
 end
 
 
+-----------------------------------------
+-- Check: Power
+--
+function NB.check_power(unit, powerTest)
+
+    -- get health % of unit
+    local actualPower=100*UnitPower(unit)/UnitPowerMax(unit)
+
+    -- get test modifier > < =
+    local modifier = string.sub(powerTest, 1, 1)
+    local charList = {'<', '>', '='}
+    if not NB.isCharInList(modifier, charList) then
+        modifier = "="
+    end
+    powerTest = string.sub(powerTest, 2)
+    
+    if modifier == "=" then
+        if tonumber(actualPower) == tonumber(powerTest) then
+            return true
+        end
+    elseif modifier == "<" then
+        if tonumber(actualPower) < tonumber(powerTest) then
+            return true
+        end
+    elseif modifier == ">" then
+        if tonumber(actualPower) > tonumber(powerTest) then
+            return true
+        end
+    end
+    
+    return false
+
+end
+
+
+-----------------------------------------
+-- Check: Power
+--
+function NB.check_mana(unit, powerTest)
+
+    -- get health % of unit
+    local actualPower=100*UnitPower(unit)/UnitPowerMax(unit)
+
+    -- get test modifier > < =
+    local modifier = string.sub(powerTest, 1, 1)
+    local charList = {'<', '>', '='}
+    if not NB.isCharInList(modifier, charList) then
+        modifier = "="
+    end
+    powerTest = string.sub(powerTest, 2)
+    
+    if modifier == "=" then
+        if tonumber(actualPower) == tonumber(powerTest) then
+            return true
+        end
+    elseif modifier == "<" then
+        if tonumber(actualPower) < tonumber(powerTest) then
+            return true
+        end
+    elseif modifier == ">" then
+        if tonumber(actualPower) > tonumber(powerTest) then
+            return true
+        end
+    end
+    
+    return false
+
+end
+
+
+-----------------------------------------
+-- Check: Buff
+--
 function NB.check_buff(unit, buffName)
     if not buffName or not unit then
         return false;
@@ -84,6 +162,9 @@ function NB.check_buff(unit, buffName)
 end
 
 
+-----------------------------------------
+-- Check: Con(ditions)
+--
 function check_con(unit, type)
 
     -- get test modifier !
