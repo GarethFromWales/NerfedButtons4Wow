@@ -1,6 +1,32 @@
 local DruidManaLib = AceLibrary("DruidManaLib-1.0")
 
 -----------------------------------------
+-- Check: Combat
+--
+function NB.check_combat(unit, modifier)
+
+    local charList = {'!'}
+    if not NB.isCharInList(modifier, charList) then
+        modifier = ""
+    end
+
+    local test = nil
+    if UnitAffectingCombat(unit) then test = true end
+
+    -- finally use the modifier to decide on true/false
+    local test = false    
+    if modifier == "" and test == true then
+        return true
+    end
+    if modifier == "!" and test == false then
+        return true
+    end   
+
+    return false
+
+end
+
+-----------------------------------------
 -- Check: Health
 --
 function NB.check_health(unit, healthTest)
@@ -41,7 +67,7 @@ end
 function NB.check_power(unit, powerTest)
 
     -- get health % of unit
-    local actualPower=100*UnitPower(unit)/UnitPowerMax(unit)
+    local actualPower=100*UnitMana(unit)/UnitManaMax(unit)
 
     -- get test modifier > < =
     local modifier = string.sub(powerTest, 1, 1)
@@ -71,37 +97,73 @@ end
 
 
 -----------------------------------------
--- Check: Power
+-- Check: Mana
 --
 function NB.check_mana(unit, powerTest)
 
-    -- get health % of unit
-    local actualPower=100*UnitPower(unit)/UnitPowerMax(unit)
+    -- if target is not a shapeshifted druid then return current power
+    local DRUID_SHIFT_FORMS = { bear=1, aquatic=2, cat=3, travel=4, moonkin=5 };
+    local in_form = false
+    local _, class, _ = UnitClass(unit) 
+    if class == "DRUID" then
+        for i=1,5  do
+            local _, _, active = GetShapeshiftFormInfo(i)
+            if active then in_form = true end
+            break
+        end
+    end 
+    if not in_form then
+        return NB.check_power(unit, powerTest)
+    end
+    
+    -- CUSTOM DRUID MANA CODE HERE
 
-    -- get test modifier > < =
-    local modifier = string.sub(powerTest, 1, 1)
-    local charList = {'<', '>', '='}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = "="
-    end
-    powerTest = string.sub(powerTest, 2)
-    
-    if modifier == "=" then
-        if tonumber(actualPower) == tonumber(powerTest) then
-            return true
-        end
-    elseif modifier == "<" then
-        if tonumber(actualPower) < tonumber(powerTest) then
-            return true
-        end
-    elseif modifier == ">" then
-        if tonumber(actualPower) > tonumber(powerTest) then
-            return true
-        end
-    end
-    
     return false
 
+end
+
+
+-----------------------------------------
+-- Check: Class
+--
+function NB.check_class(unit, className)
+    if not className or not unit then
+        return false;
+    end
+
+    -- get test modifier !
+    local modifier = string.sub(className, 1, 1)
+    local charList = {'!'}
+    if not NB.isCharInList(modifier, charList) then
+        modifier = ""
+    else
+        className = string.sub(className, 2)
+    end
+
+    -- do we have a valid class?
+    local apiClass = NB.get_APIClass(className)
+    if not apiClass then
+        NB.error("Invalid class passed to check *"..className.."*")
+        return false
+    end
+
+    local _, actual_class, _ = UnitClass(unit) 
+    if string.upper(className) == string.upper(actual_class) then
+        return true
+    else
+        return false
+    end
+
+    -- finally use the modifier to decide on true/false
+    local test = false    
+    if modifier == "" and test == true then
+        return true
+    end
+    if modifier == "!" and test == false then
+        return true
+    end    
+    
+    return false;
 end
 
 
@@ -128,7 +190,7 @@ function NB.check_buff(unit, buffName)
 	for i=1, 32 do
 		NBTooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		NBTooltip:SetUnitBuff(unit, i);
-		name = text:GetText();
+		local name = text:GetText();
 		NBTooltip:Hide();
         buffName = string.gsub(buffName, "_", " ");
 		if ( name and string.find(name, buffName) ) then
@@ -141,7 +203,7 @@ function NB.check_buff(unit, buffName)
 	for i=1, 16 do
 		NBTooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		NBTooltip:SetUnitDebuff(unit, i);
-		name = text:GetText();
+		local name = text:GetText();
 		NBTooltip:Hide();
         buffName = string.gsub(buffName, "_", " ");
 		if ( name and string.find(name, buffName) ) then
@@ -165,7 +227,7 @@ end
 -----------------------------------------
 -- Check: Con(ditions)
 --
-function check_con(unit, type)
+function NB.check_condition(unit, type)
 
     -- get test modifier !
     local modifier = string.sub(type, 1, 1)
@@ -181,7 +243,7 @@ function check_con(unit, type)
     local gotmagic = false
     local gotdisease = false
     for i=1,40 do 
-        local name, rank, type, rest = UnitDebuff("player",i); 
+        local name, rank, type, rest = UnitDebuff(unit, i); 
         if type=="Curse" then gotcurse = true end
         if type=="Poison" then gotpoison = true end
         if type=="Magic" then gotmagic = true end

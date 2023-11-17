@@ -1,0 +1,28 @@
+{
+    "Lua.diagnostics.globals": [
+        "event",
+        "SlashCmdList",
+        "CastSpellByName",
+        "UseItemByName",
+        "UnitHealthMax",
+        "UnitPower",
+        "UnitPowerMax",
+        "getglobal",
+        "NBTooltip",
+        "UIParent",
+        "UnitDebuff",
+        "UnitHealth",
+        "AceLibrary",
+        "UnitClass",
+        "UnitAffectingCombat",
+        "IsAttackAction",
+        "IsCurrentAction",
+        "UseAction",
+        "AttackTarget",
+        "SpellStopCasting",
+        "CancelPlayerBuff",
+        "GetShapeshiftFormInfo",
+        "UnitMana",
+        "UnitManaMax"
+    ]
+}
