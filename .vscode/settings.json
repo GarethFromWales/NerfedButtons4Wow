@@ -23,6 +23,19 @@
         "CancelPlayerBuff",
         "GetShapeshiftFormInfo",
         "UnitMana",
-        "UnitManaMax"
+        "UnitManaMax",
+        "DEFAULT_CHAT_FRAME",
+        "GetSpellName",
+        "gsub",
+        "GetSpellCooldown",
+        "UnitTarget",
+        "TargetUnit",
+        "TargetLastTarget",
+        "UnitExists",
+        "TargetNearestFriend",
+        "TargetNearestEnemy",
+        "TargetNearestEnemyPlayer",
+        "UnitInRaid",
+        "UnitInParty"
     ]
 }

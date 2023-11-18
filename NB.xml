@@ -4,6 +4,7 @@
   <Script file="Util.lua" />
   <Script file="Checks.lua" />
   <Script file="Actions.lua" />
+  <Script file="Lists.lua" />
 
   <GameTooltip name="NBTooltip" frameStrata="TOOLTIP" hidden="true" parent="UIParent" inherits="GameTooltipTemplate"/>
 

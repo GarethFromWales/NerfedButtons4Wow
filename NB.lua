@@ -8,74 +8,6 @@ local debug = true
 if NB == nil then NB = {} end
 
 
--- list of valid custom actions, long and short forms
--- does not include items and spells
-NB.VALIDACTIONS = {
-	["c"] = "cancel",
-	["cancel"] = "cancel",
-	["t"] = "target",
-	["target"] = "target",
-	["s"] = "stop",
-	["stop"] = "stop",
-	["sc"] = "stopcast",
-	["stopcast"] = "stopcast",
-	["sa"] = "stopattack",
-	["stopattack"] = "stopattack"
-}
-
--- list of valid checks, long and short forms
-NB.VALIDCHECKS = {
-	["h"] = "health",
-	["health"] = "health",
-	["p"] = "power",
-	["pow"] = "power",	
-	["power"] = "power", 
-	["m"] = "mana",	
-	["mana"] = "mana", 	
-	["c"] = "condition", 
-	["con"] = "condition", 
-	["condition"] = "condition",
-	["b"] = "buff",
-	["buff"] = "buff",
-	["d"] = "buff",
-	["debuff"] = "buff",
-	["com"] = "combat",
-	["combat"] = "combat"		
-}
-
--- list of valid targets, long and short forms
-NB.VALIDTARGETS = {
-	["p"] = "player",
-	["player"] = "player",
-	["t"] = "target",
-	["target"] = "target",
-	["g"] = "group",
-	["group"] = "group",
-	["r"] = "raid",
-	["raid"] = "raid"
-}
-
--- list of valid classes, long and short forms
-NB.VALIDCLASSES = {
-	["war"] = "warrior",
-	["warior"] = "warrior",
-	["dru"] = "druid",	
-	["druid"] = "druid",
-	["pal"] = "paladin",
-	["paladin"] = "paladin",
-	["pri"] = "priest",
-	["priest"] = "priest",	
-	["hun"] = "hunter",
-	["hunter"] = "hunter",	
-	["sha"] = "shaman",
-	["shaman"] = "shaman",		
-	["loc"] = "warlock",
-	["warlock"] = "warlock",
-	["mag"] = "mage",
-	["mage"] = "mage",		
-	["rog"] = "rogue",
-	["rogue"] = "rogue"			
-}
 
 -----------------------------------------
 -- React to events
@@ -114,39 +46,100 @@ function NB.slash_handler(msg)
 	local action_name, action_target = NB.get_action(parts)
 
 	-- do we have an item, spell or special?
+	-- specials are custom actions that can be found
+	-- in Actions.lua
 	local action_type = NB.get_action_type(action_name)
 
-	-- get the WoW API valid target strings
-	if NB.get_APITarget(action_target ~= "") then 
-		action_target = NB.get_APITarget(action_target)
+	-- validate the action exists
+	-- check spell or item exists or if a special then the 
+	-- fucntion exists
+	if(action_type == "special") then
+		action_name = NB.get_APISpecial(action_name)
+		if NB.isFunctionDefined("NB.action_"..action_name) then
+			NB.error("Internal error, function NB.action_"..action_name.." is not defined")
+			return
+		end
+	end
+	if(action_type == "spell") then
+		-- TODO: does it exist? Here we look up spell names from their short form
+	end
+	if(action_type == "item") then
+		-- TODO: does it exist? Here we look up item names from their short form
+	end	
+
+	-- Validate action target from list
+	if NB.get_APIActionTarget(action_target ~= "") then 
+		action_target = NB.get_APIActionTarget(action_target)
 	else
-		NB.error("Error parsing NefedButton target, execution terminated.")
+		NB.error("Error parsing NefedButton action target, execution terminated.")
 		return
 	end
 
-	-- get the checks
+	-- if we dont have an action target then use current if there is one
+	-- otherwise use player
+	local onSelf = true
+	if action_target and action_target ~= "player" then
+		if UnitExists("target") then
+			onSelf = false
+		end
+	end
+
+	-- Validate checks from list
 	local checks = NB.get_checks(parts)
 	if not checks then
-		NB.error("Error parsing NefedButton check, execution terminated.")
+		NB.error("Error parsing NefedButton checks, execution terminated.")
 		return
 	end
+	
 
-	-- loop through the checks and return true if they all pass
-	if NB.do_checks(checks) then
-		-- checks have passed! Perform the action
 
-		if(action_type == "special") then 
-			if NB.isFunctionDefined("NB.action_"..action_name) then
-				NB.error("Internal error, function NB.action_"..action_name.." is not defined")
-				return
+	-- if we have a dynamic action target like group, raid, friendly, hostile
+	-- then we need to perform the checks for each and break out of the loop
+	-- as soon as we find someone who passes all the checks.
+	local loops = 1
+	local count = 0
+	-- if action_target == "friendly" then loops = 10 end
+	-- if action_target == "hostile" then loops = 10 end
+	if action_target == "party" then loops = NB.getMemberCount() end
+	if action_target == "raid" then loops = NB.getMemberCount() end
+
+	-- loop through targets
+	for i = 1, loops do
+
+		-- if we're in a party we need to add the player
+		if i == loops then action_target = "player" end
+
+		-- Run all the checks. If they all pass then
+		-- do the action!
+		if NB.do_checks(checks, action_target, i) then
+			-- all the check have passed!!! Do something!!!
+
+			-- target the right target if we had a dynamic
+			if loops > 1 then TargetUnit(action_target..i) end
+
+			-- deal with special actions like targetting and talking
+			if(action_type == "special") then
+				if action_target then
+					if not NB["action_"..action_name](action_target) then return false end
+				else 
+					if not NB["action_"..action_name]() then return false end
+				end
 			end
-			if not NB["action_"..action_name](action_target) then return false end
+
+			-- deal with spells
+			if(action_type == "spell") then CastSpellByName(action_name, onSelf) end
+
+			-- deal with items
+			if(action_type == "item") then UseItemByName(action_name, onSelf) end
+
+			-- go back to original target
+			TargetLastTarget();
+		else
+			-- all checks failed, do nothing
 		end
-		if(action_type == "spell") then CastSpellByName(action_name, action_target) end
-		if(action_type == "item") then UseItemByName(action_name, action_target) end
-	else
-		-- all checks failed, do nothing
 	end
+
+	
 end
 
 -----------------------------------------
@@ -165,11 +158,11 @@ function NB.get_action(parts)
 		_, _, action_target, _ = string.find(actionString, "(%b:])")
 		action_target = string.sub(action_target, 2, -2)
 	else
-		-- no target so extract the action differently and default to player as the
+		-- no target so extract the action differently and default to target as the
 		-- target
 		_, _, action, _ = string.find(actionString, "(%b[])")
 		action = string.sub(action, 2, -2)
-		action_target = "player"
+		action_target = "target"
 	end
 
 	return action, action_target
@@ -186,11 +179,11 @@ function NB.get_action_type(action_name)
 	local api_action = ""
 
 	-- deal with special actions
-	for k,v in pairs(NB.VALIDACTIONS) do 
+	for k,v in pairs(NB.SPECIALACTIONS) do
 
-		if k == action_name then 
-			do return "special" end 
-			break 
+		if k == action_name then
+			do return "special" end
+			break
 		end
 	end
 
@@ -200,12 +193,24 @@ function NB.get_action_type(action_name)
 end
 
 -----------------------------------------
--- Returns the WoW API correct target
+-- Returns the API correct action target
 --
-function NB.get_APITarget(target)
+function NB.get_APIActionTarget(target)
 
 	local api_target = ""
-	for k,v in pairs(NB.VALIDTARGETS) do if k == target then api_target = v break end end
+	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then api_target = v break end end
+	return api_target
+
+end
+
+
+-----------------------------------------
+-- Returns the WoW API correct check target
+--
+function NB.get_APICheckTarget(target)
+
+	local api_target = ""
+	for k,v in pairs(NB.VALIDCHECKTARGETS) do if k == target then api_target = v break end end
 	return api_target
 
 end
@@ -226,11 +231,23 @@ end
 -----------------------------------------
 -- Returns the WoW API correct class
 --
-function NB.get_APIClass(check)
+function NB.get_APIClass(class)
 
 	local api_class = ""
 	for k,v in pairs(NB.VALIDCLASSES) do if k == class then api_class = v break end end
 	return api_class
+
+end
+
+
+-----------------------------------------
+-- Returns the NB API correct special
+--
+function NB.get_APISpecial(special)
+
+	local api_special = ""
+	for k,v in pairs(NB.SPECIALACTIONS) do if k == special then api_special = v break end end
+	return api_special
 
 end
 
@@ -261,8 +278,8 @@ function NB.get_checks(parts)
 		-- understands.
 		local _, _, check_target, _ = string.find(k, "(%b::)")
 		check_target = string.sub(check_target, 2, -2)	
-		if NB.get_APITarget(check_target ~= "") then 
-			check_target = NB.get_APITarget(check_target) -- get WoW API correct form of target name
+		if NB.get_APICheckTarget(check_target ~= "") then 
+			check_target = NB.get_APICheckTarget(check_target) -- get WoW API correct form of target name
 		else
 			NB.error("Error parsing check, execution terminated. \""..check_target.."\" is not a valid check target.")
 			return false
@@ -285,11 +302,20 @@ end
 -- Performs each check in the table
 -- and if all pass returns true, 
 -- else false
-function NB.do_checks(checks)
+function NB.do_checks(checks, action_target, loop_iteration)
+
 	for i, k in checks do
 		local ctype = k[1]
 		local ctarget = k[2]
 		local cvalue = k[3]
+
+		if ctarget == "dynamic" then
+			ctarget = action_target..loop_iteration;
+			if action_target == "player" then ctarget="player" end
+		end
+		
+		if not UnitExists(ctarget) then return false end
+
 
 		-- check the check function actually exists
 		if NB.isFunctionDefined("NB.check_"..ctype) then
@@ -299,8 +325,11 @@ function NB.do_checks(checks)
 
 		-- call the check function and return false if it fails
 		if not NB["check_"..ctype](ctarget, cvalue) then return false end
+
 	end
+
 	return true
+
 end
 
 

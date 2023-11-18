@@ -1,5 +1,7 @@
+if NB == nil then NB = {} end
+
 -----------------------------------------
--- Check: Cancel buff
+-- Action: Cancel buff
 --
 function NB.action_cancel(buffName)
 
@@ -21,17 +23,18 @@ end
 
 
 -----------------------------------------
--- Check: Stop Casting
+-- Action: Stop Casting and Attacking
 --
-function NB.action_stopcast()
+function NB.action_stop()
 
-    SpellStopCasting()
-    
+    NB.action_stopattack()
+    NB.action_stopcast()
+
 end
 
 
 -----------------------------------------
--- Check: Stop Casting
+-- Action: Stop Casting
 --
 function NB.action_stopattack()
 
@@ -57,11 +60,62 @@ end
 
 
 -----------------------------------------
--- Check: Stop Casting and Attacking
+-- Action: Stop Casting
 --
-function NB.action_stop()
+function NB.action_stopcast()
 
-    NB.action_stopattack()
-    NB.action_stopcast()
-
+    SpellStopCasting()
+    
 end
+
+
+-----------------------------------------
+-- Action: Target
+--
+function NB.action_target(unit)
+
+    TargetUnit(unit)
+    
+end
+
+
+-----------------------------------------
+-- Action: Target Last
+--
+function NB.action_targetlasttarget()
+
+    TargetLastTarget();
+    
+end
+
+
+-----------------------------------------
+-- Action: Target friend
+--
+function NB.action_targetfriend()
+
+    TargetNearestFriend();
+    
+end
+
+
+-----------------------------------------
+-- Action: Target enemy
+--
+function NB.action_targetenemy()
+
+    TargetNearestEnemy();
+    
+end
+
+
+-----------------------------------------
+-- Action: Target enemy player
+--
+function NB.action_targetenemyplayer()
+
+    TargetNearestEnemyPlayer();
+    
+end
+
+
