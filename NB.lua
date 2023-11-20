@@ -1,12 +1,13 @@
+
 local NerfedButtonsVersion = "1.0.0-Vanilla";
 local NerfedButtonsAuthor  = "NerfedWar; Vanilla adaptation of NerfedButtons.";
-
-local NerfedButtonsLoaded = false;
 
 local debug = true
 
 if NB == nil then NB = {} end
 
+
+NB.NerfedButtonsLoaded = false;
 
 
 -----------------------------------------
@@ -14,17 +15,15 @@ if NB == nil then NB = {} end
 --
 function NerfedButtons_EventHandler()
 
-	
-	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnLoad(); end
-
+	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnAddonLoaded(); end
 
 end
+
 	
 -----------------------------------------
 -- Initialises NerfedButtons
 --
-function NerfedButtons_OnLoad()
-	
+function NerfedButtons_OnAddonLoaded()
 
 	-- Register the slash handles
 	SlashCmdList["NERFEDBUTTONS"] = NB.slash_handler
@@ -37,8 +36,8 @@ function NerfedButtons_OnLoad()
 	NB.populateSpellCache() 
 	--NB.populateItemCache() 
 
-	NerfedButtonsLoaded = true;
 end
+
 
 -----------------------------------------
 -- Parse the /nb command
@@ -49,17 +48,10 @@ function NB.slash_handler(msg)
 	local parts = {}
 	local split = string.gsub(msg, "(%b[])", function (part) table.insert(parts, part) end) -- split the arguments by [] brackets
 
-
 	local action_name, action_target = NB.split_action(parts) -- get the action name and action_target
-
-	NB.print(action_name)
-	NB.print(action_target)	
 
 	local action_type -- do we have an item, spell or special?
 	action_name, action_type, action_target = NB.validate_action(action_name, action_target) -- expand the action to its full name
-	NB.print(action_name)
-	NB.print(action_type)
-	NB.print(action_target)		
 	if action_name == "" then -- deal with not finding a matching action
 		NB.error("Error parsing NefedButton, \""..action_name.."\" is not a valid action.")
 		return
@@ -71,7 +63,6 @@ function NB.slash_handler(msg)
 		NB.error("Error parsing NefedButton checks, execution terminated.")
 		return
 	end
-	
 
 	-- if we have a dynamic action target like group, raid, friendly, hostile
 	-- then we need to perform the checks for each and break out of the loop
@@ -85,8 +76,8 @@ function NB.slash_handler(msg)
 	-- loop through targets
 	for i = 1, loops do
 
-		-- if we're in a party we need to add the player
-		if i == loops then action_target = "player" end
+		-- if we're in a party we need to add the player as the last target of the loop
+		if loops > 1 and i == loops then action_target = "player" end
 
 		-- Run all the checks. If they all pass then
 		-- do the action!
@@ -107,7 +98,9 @@ function NB.slash_handler(msg)
 
 			-- deal with spell actions
 			if(action_type == "spell") then 
+
 				if CastSpellByName(action_name, action_target == "player") then
+
 					-- store the time the spell/item was cast
 					NB.cooldowns[action_name] = time()		
 				end
@@ -129,8 +122,8 @@ function NB.slash_handler(msg)
 		end
 	end
 
-	
 end
+
 
 -----------------------------------------
 -- Splits the parts of the action into
@@ -159,19 +152,6 @@ function NB.split_action(parts)
 
 end
 
-
-
-
------------------------------------------
--- Returns the API correct action target
---
---[[function NB.get_validate_action_target(target)
-
-	local api_target = ""
-	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then api_target = v break end end
-	return api_target
-
-end--]]
 
 
 -----------------------------------------
@@ -268,6 +248,7 @@ function NB.validate_checks(parts)
 	return checkTable
 end
 
+
 -----------------------------------------
 -- Performs each check in the table
 -- and if all pass returns true, 
@@ -312,7 +293,8 @@ function NB.validate_action(action_name, action_target)
 	action_name = string.lower(action_name)
 	action_target = string.lower(action_target)
 
-	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then action_target = v break end end
+	-- just like action names, the target can be abbreviated, so we look it up to get the full version
+	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == action_target then action_target = v break end end
 	-- if we dont have an action target then use current if there is one
 	-- otherwise use player
 	if action_target == "" then -- if we have a blank target then set to target if we have one, or player if not
@@ -343,7 +325,7 @@ end
 -----------------------------------------
 -- Util: Populates all the spells on
 -- the player into a cache
-function NB.populateSpellCache() 
+function NB.populateSpellCache()
 
 	-- populate spells
 	local i = 1
@@ -378,6 +360,7 @@ function NB.populateItemCache()
 	end
 end
 
+
 -----------------------------------------
 -- Util: Populates a spell database
 -- with all the spells and items on the player
@@ -403,12 +386,12 @@ function NB.putSpellIntoCache(spellOrItemName)
 
 	else -- just one word, take first 4 characters
 		abbrev = gsub(spellOrItemName, "(%a)(%a)(%a).*", "%1%2%3")
-		--NB.print(abbrev) 
 	end
 
 	NB.SPELLCACHE[spellOrItemName] =  spellOrItemName 
 	NB.SPELLCACHE[abbrev] = spellOrItemName
 end
+
 
 -----------------------------------------
 -- Util: Populates a item database
