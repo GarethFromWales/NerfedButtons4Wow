@@ -14,7 +14,9 @@ if NB == nil then NB = {} end
 --
 function NerfedButtons_EventHandler()
 
+	
 	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnLoad(); end
+
 
 end
 	
@@ -33,6 +35,7 @@ function NerfedButtons_OnLoad()
 
 	-- populate the spell and item cache
 	NB.populateSpellCache() 
+	--NB.populateItemCache() 
 
 	NerfedButtonsLoaded = true;
 end
@@ -47,14 +50,18 @@ function NB.slash_handler(msg)
 	local split = string.gsub(msg, "(%b[])", function (part) table.insert(parts, part) end) -- split the arguments by [] brackets
 
 
-	local action_name, action_target = NB.get_action(parts) -- get the action name and action_target
-	action_name = string.lower(action_name)
-	action_target = string.lower(action_target)
+	local action_name, action_target = NB.split_action(parts) -- get the action name and action_target
+
+	NB.print(action_name)
+	NB.print(action_target)	
 
 	local action_type -- do we have an item, spell or special?
-	action_name, action_type, action_target = NB.validate_action(action_name) -- expand the action to its full name
+	action_name, action_type, action_target = NB.validate_action(action_name, action_target) -- expand the action to its full name
+	NB.print(action_name)
+	NB.print(action_type)
+	NB.print(action_target)		
 	if action_name == "" then -- deal with not finding a matching action
-		NB.error("Error parsing NefedButton, \"..action_name..\" is not a valid action.")
+		NB.error("Error parsing NefedButton, \""..action_name.."\" is not a valid action.")
 		return
 	end
 
@@ -129,7 +136,7 @@ end
 -- Splits the parts of the action into
 -- action name and target.
 --
-function NB.get_action(parts)
+function NB.split_action(parts)
 
 	local actionString = parts[1] -- first element
 	local action, action_target = nil, nil
@@ -158,19 +165,19 @@ end
 -----------------------------------------
 -- Returns the API correct action target
 --
-function NB.get_validate_action_target(target)
+--[[function NB.get_validate_action_target(target)
 
 	local api_target = ""
 	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then api_target = v break end end
 	return api_target
 
-end
+end--]]
 
 
 -----------------------------------------
 -- Returns the WoW API correct check target
 --
-function NB.get_APICheckTarget(target)
+function NB.validate_check_target(target)
 
 	local api_target = ""
 	for k,v in pairs(NB.VALIDCHECKTARGETS) do if k == target then api_target = v break end end
@@ -182,7 +189,7 @@ end
 -----------------------------------------
 -- Returns the NB API correct check
 --
-function NB.get_APICheck(check)
+function NB.validate_check_name(check)
 
 	local api_check = ""
 	for k,v in pairs(NB.VALIDCHECKS) do if k == check then api_check = v break end end
@@ -194,7 +201,7 @@ end
 -----------------------------------------
 -- Returns the WoW API correct class
 --
-function NB.get_APIClass(class)
+function NB.validate_class_name(class)
 
 	local api_class = ""
 	for k,v in pairs(NB.VALIDCLASSES) do if k == class then api_class = v break end end
@@ -206,7 +213,7 @@ end
 -----------------------------------------
 -- Returns the NB API correct special
 --
-function NB.get_APISpecial(special)
+function NB.validate_special_name(special)
 
 	local api_special = ""
 	for k,v in pairs(NB.SPECIALACTIONS) do if k == special then api_special = v break end end
@@ -229,8 +236,8 @@ function NB.validate_checks(parts)
 		-- expand it to the full string version we can use to call
 		-- the check function in Checks.lua
 		check_type = string.sub(check_type, 2, -2)
-		if NB.get_APICheck(check_type ~= "") then 
-			check_type = NB.get_APICheck(check_type) -- get NB API correct form of check name
+		if NB.validate_check_name(check_type ~= "") then 
+			check_type = NB.validate_check_name(check_type) -- get NB API correct form of check name
 		else
 			NB.error("Error parsing check, execution terminated. \""..check_type.."\" is not a valid check type.")
 			return false
@@ -241,8 +248,8 @@ function NB.validate_checks(parts)
 		-- understands.
 		local _, _, check_target, _ = string.find(k, "(%b::)")
 		check_target = string.sub(check_target, 2, -2)	
-		if NB.get_APICheckTarget(check_target ~= "") then 
-			check_target = NB.get_APICheckTarget(check_target) -- get WoW API correct form of target name
+		if NB.validate_check_target(check_target ~= "") then 
+			check_target = NB.validate_check_target(check_target) -- get WoW API correct form of target name
 		else
 			NB.error("Error parsing check, execution terminated. \""..check_target.."\" is not a valid check target.")
 			return false
@@ -302,14 +309,15 @@ end
 --
 function NB.validate_action(action_name, action_target)
 
-	local api_target = "" -- check the target is valid
+	action_name = string.lower(action_name)
+	action_target = string.lower(action_target)
+
 	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then action_target = v break end end
 	-- if we dont have an action target then use current if there is one
 	-- otherwise use player
 	if action_target == "" then -- if we have a blank target then set to target if we have one, or player if not
 		if UnitExists("target") then action_target = "target" else action_target = "player" end
 	end
-
 
 	for k,v in pairs(NB.SPECIALACTIONS) do 	-- deal with special actions
 
@@ -328,6 +336,128 @@ function NB.validate_action(action_name, action_target)
 	end	
 
 	return "", "", ""
+
+end
+
+
+-----------------------------------------
+-- Util: Populates all the spells on
+-- the player into a cache
+function NB.populateSpellCache() 
+
+	-- populate spells
+	local i = 1
+	while true do
+	   local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL)
+	   
+	   if not spellName then do break end end
+
+	   NB.putSpellIntoCache(spellName) 
+	   
+	   --DEFAULT_CHAT_FRAME:AddMessage( spellName .. '(' .. spellRank .. ')' )
+	   
+	   i = i + 1
+	end
+end
+
+
+-----------------------------------------
+-- Util: Populates all the items on
+-- the player into a cache
+function NB.populateItemCache() 
+	-- populate spells
+	local i = 1
+	while true do
+	   local itemName, spellRank = GetSpellName(i, BOOKTYPE_SPELL)
+	   
+	   if not itemName then do break end end
+
+	   NB.putItemIntoCache(itemName) 
+	   
+	   i = i + 1
+	end
+end
+
+-----------------------------------------
+-- Util: Populates a spell database
+-- with all the spells and items on the player
+--
+-- we put 2 entries in for each spell/item
+-- The full name, and the abbreviated version
+-- The abbrev version is the first letter of each
+-- word if we have 2 or more words, or the first 3
+-- letters of the spell if only 1 word.
+function NB.putSpellIntoCache(spellOrItemName) 
+
+	-- we treat everything in lowercase
+	spellOrItemName = string.lower(spellOrItemName)
+
+	local _, wcount = gsub(spellOrItemName, "%S+", "")
+	local abbrev = ""
+
+	if wcount > 1 then -- more than one word, remove backets and take first letter of each
+		
+		abbrev = gsub(spellOrItemName,"%(", "") -- replace ( with empty string
+		abbrev = gsub(abbrev,"%)", "") -- replace ) with empty string		
+		abbrev = gsub(abbrev, "(%a)%S*%s*", "%1")
+
+	else -- just one word, take first 4 characters
+		abbrev = gsub(spellOrItemName, "(%a)(%a)(%a).*", "%1%2%3")
+		--NB.print(abbrev) 
+	end
+
+	NB.SPELLCACHE[spellOrItemName] =  spellOrItemName 
+	NB.SPELLCACHE[abbrev] = spellOrItemName
+end
+
+-----------------------------------------
+-- Util: Populates a item database
+--
+function NB.putItemIntoCache(spellOrItemName) 
+
+	-- we treat everything in lowercase
+	spellOrItemName = string.lower(spellOrItemName)
+
+	local _, wcount = gsub(spellOrItemName, "%S+", "")
+	local abbrev = ""
+
+	if wcount > 1 then
+		abbrev = gsub(spellOrItemName, "(%a)%S*%s*", "%1")
+	else
+		abbrev = gsub(spellOrItemName, "(%a)(%a)(%a).*", "%1%2%3")
+	end
+
+	NB.SPELLCACHE[spellOrItemName] =  spellOrItemName 
+	NB.SPELLCACHE[abbrev] = spellOrItemName
+end
+
+
+-----------------------------------------
+-- Util: Returns the full name of a spell form the cache
+--
+function NB.getSpellFromCache(spell) 
+
+	if NB.SPELLCACHE[spell] then
+		return NB.SPELLCACHE[spell]
+    else
+        NB.error("Could not find spell: "..spell)
+        return false
+    end
+
+end
+
+
+-----------------------------------------
+-- Util: Returns the full name of a item form the cache
+--
+function NB.getItemFromCache(item) 
+
+	if NB.ITEMCACHE[item] then
+		return NB.ITEMCACHE[item]
+    else
+        NB.error("Could not find item: "..item)
+        return false
+    end
 
 end
 

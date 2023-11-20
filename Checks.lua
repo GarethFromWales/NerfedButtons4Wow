@@ -77,7 +77,7 @@ function NB.check_class(unit, className)
     end
 
     -- do we have a valid class?
-    local apiClass = NB.get_APIClass(className)
+    local apiClass = NB.validate_class_name(className)
     if not apiClass then
         NB.error("Invalid class passed to check *"..className.."*")
         return false
