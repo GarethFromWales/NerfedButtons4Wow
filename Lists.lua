@@ -1,5 +1,9 @@
 if NB == nil then NB = {} end
 
+
+NB.SPELLCACHE = { }
+NB.ITEMCACHE = { }
+
 -- list of valid custom actions, long and short forms
 -- does not include items and spells
 NB.SPECIALACTIONS = {
@@ -32,12 +36,17 @@ NB.VALIDCHECKS = {
 	["c"] = "condition", 
 	["con"] = "condition", 
 	["condition"] = "condition",
+	["cd"] = "cooldown", 	
 	["b"] = "buff",
 	["buff"] = "buff",
 	["d"] = "buff",
 	["debuff"] = "buff",
 	["com"] = "combat",
-	["combat"] = "combat"		
+	["combat"] = "combat",
+	["f"] = "form",
+	["form"] = "form",	
+	["combo"] = "combo_points",
+	["cp"] = "combo_points"		
 }
 
 -- list of valid targets, long and short forms
@@ -55,7 +64,6 @@ NB.VALIDACTIONTARGETS = {
 	--["h"] = "hostile",
 	--["hostile"] = "hostile" 
 }
-
 
 -- list of valid targets, long and short forms
 NB.VALIDCHECKTARGETS = {
@@ -88,3 +96,30 @@ NB.VALIDCLASSES = {
 	["rog"] = "rogue",
 	["rogue"] = "rogue"			
 }
+
+NB.VALIDDRUIDFORMS = {
+	["b"] = "bear",
+	["bear"] = "bear",
+	["Bear Form"] = "bear",
+	["Dire Bear Form"] = "bear",
+	["a"] = "aquatic",
+	["aquatic"] = "aquatic",
+	["Aquatic Form"] = "aquatic",	
+	["c"] = "cat",	
+	["cat"] = "cat",
+	["Cat Form"] = "cat",	
+	["t"] = "travel",	
+	["travel"] = "travel",
+	["Travel Form"] = "travel",	
+	["m"] = "moonkin",
+	["moonkin"] = "moonkin",
+	["Moonkin Form"] = "moonkin",	
+	["n"] = "humanoid",
+	["no"] = "humanoid",
+	["none"] = "humanoid",			
+	["h"] = "humanoid",
+	["humanoid"] = "humanoid"
+};
+
+
+

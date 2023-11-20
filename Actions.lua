@@ -13,7 +13,10 @@ function NB.action_cancel(buffName)
        local name = text:GetText();
        NBTooltip:Hide();
        buffName = string.gsub(buffName, "_", " ");
+       NB.print(name)
+       NB.print(buffName)
        if ( name and string.find(name, buffName) ) then
+
             CancelPlayerBuff(i-1);
             return true
        end

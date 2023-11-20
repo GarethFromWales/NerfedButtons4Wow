@@ -131,6 +131,63 @@ end
 
 
 -----------------------------------------
+-- Check: Cooldown
+-- e.g. HT30 (only pass if there has been 30 secodns since HT was last cast)
+NB.cooldowns = {} -- global to hold fake cooldowns
+function NB.check_cooldown(unit, spellAndCooldown)
+NB.print(spellAndCooldown)
+    local letters, numbers
+    gsub (spellAndCooldown, "^(%a+)(%d+)$", function (a, b) letters = a; numbers = b end)
+    NB.print(letters)
+    NB.print(numbers)
+    -- look up spell
+    local realSpellName = NB.getSpellFromCache(letters)
+    if time() > tonumber(NB.cooldowns[realSpellName]) + tonumber(numbers) then
+        return true
+    end
+
+    return false
+
+end
+
+-----------------------------------------
+-- Check: Combo
+--
+function NB.check_combo_points(unit, test)
+
+    -- get combo points
+    local actualCombo = GetComboPoints("player")
+
+    -- get test modifier > < =
+    local modifier = string.sub(test, 1, 1)
+    local charList = {'<', '>', '='}
+    if not NB.isCharInList(modifier, charList) then
+        modifier = "="
+    end
+    test = string.sub(test, 2) 
+
+    if modifier == "=" then
+        if tonumber(actualCombo) == tonumber(test) then
+            return true
+        end
+    elseif modifier == "<" then
+        if tonumber(actualCombo) < tonumber(test) then
+            return true
+        end
+    elseif modifier == ">" then
+        if tonumber(actualCombo) > tonumber(test) then
+            return true
+        end
+    end
+     
+    return false
+
+end
+
+
+
+
+-----------------------------------------
 -- Check: Con(ditions)
 --
 function NB.check_condition(unit, type)
@@ -178,6 +235,55 @@ function NB.check_condition(unit, type)
         return true
     end   
     
+    return false
+
+end
+
+
+-----------------------------------------
+-- Check: Form
+--
+function NB.check_form(unit, testForm)
+
+    -- get if of current form
+    local formId = 6
+    local actualForm = 0
+    for i=1, GetNumShapeshiftForms() do
+        _, _, actualForm = GetShapeshiftFormInfo(i);
+        if actualForm then
+            formId =  i;
+        end
+    end
+
+    -- get test modifier !
+    local modifier = string.sub(testForm, 1, 1)
+    local charList = {'!'}
+    if not NB.isCharInList(modifier, charList) then
+        modifier = ""
+    else
+        testForm = string.sub(testForm, 2)
+    end
+
+    -- get testForm API version
+    testForm = NB.VALIDDRUIDFORMS[testForm]
+
+    local FORMS = {
+        [6] = "humanoid",
+        [1] = "bear" ,
+        [2] = "aquatic",
+        [3] = "cat",
+        [4] = "travel",
+        [5] = "moonkin"
+    }
+
+    if testForm == FORMS[formId] and modifier=="" then 
+        return true 
+    end
+
+    if testForm ~= FORMS[formId] and modifier=="!" then 
+        return true 
+    end   
+
     return false
 
 end

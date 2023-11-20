@@ -30,6 +30,10 @@ function NerfedButtons_OnLoad()
 
 	NB.print("NerfedButtons Loaded. Usage information at:");
 	NB.print("https://github.com/GarethFromWales/NerfedButtons4Wow")
+
+	-- populate the spell and item cache
+	NB.populateSpellCache() 
+
 	NerfedButtonsLoaded = true;
 end
 
@@ -44,6 +48,8 @@ function NB.slash_handler(msg)
 
 	-- get the action name and action_target
 	local action_name, action_target = NB.get_action(parts)
+	action_name = string.lower(action_name)
+	action_target = string.lower(action_target)
 
 	-- do we have an item, spell or special?
 	-- specials are custom actions that can be found
@@ -59,15 +65,23 @@ function NB.slash_handler(msg)
 			NB.error("Internal error, function NB.action_"..action_name.." is not defined")
 			return
 		end
+	elseif (action_type == "spell") then
+		if NB.SPELLCACHE[action_name] then 
+			action_name = NB.SPELLCACHE[action_name] 
+		else
+			NB.error("Parsing error spell \"action_name\" is not known.")
+			return
+		end
+	elseif (action_type == "item") then
+		if NB.ITEMCACHE[action_name] then 
+			action_name = NB.ITEMCACHE[action_name] 
+		else
+			NB.error("Parsing error item \"action_name\" is not known.")
+			return
+		end
 	end
-	if(action_type == "spell") then
-		-- TODO: does it exist? Here we look up spell names from their short form
-	end
-	if(action_type == "item") then
-		-- TODO: does it exist? Here we look up item names from their short form
-	end	
 
-	-- Validate action target from list
+	-- Validate target of the action from list
 	if NB.get_APIActionTarget(action_target ~= "") then 
 		action_target = NB.get_APIActionTarget(action_target)
 	else
@@ -91,13 +105,13 @@ function NB.slash_handler(msg)
 		return
 	end
 	
-
-
+--NB.print(action_name)
+--NB.print(action_target)
+--NB.print(action_type)
 	-- if we have a dynamic action target like group, raid, friendly, hostile
 	-- then we need to perform the checks for each and break out of the loop
 	-- as soon as we find someone who passes all the checks.
 	local loops = 1
-	local count = 0
 	-- if action_target == "friendly" then loops = 10 end
 	-- if action_target == "hostile" then loops = 10 end
 	if action_target == "party" then loops = NB.getMemberCount() end
@@ -115,7 +129,7 @@ function NB.slash_handler(msg)
 			-- all the check have passed!!! Do something!!!
 
 			-- target the right target if we had a dynamic
-			if loops > 1 then TargetUnit(action_target..i) end
+			if (action_target=="raid" or action_target == "party") and loops > 1 then TargetUnit(action_target..i) end
 
 			-- deal with special actions like targetting and talking
 			if(action_type == "special") then
@@ -127,13 +141,26 @@ function NB.slash_handler(msg)
 			end
 
 			-- deal with spells
-			if(action_type == "spell") then CastSpellByName(action_name, onSelf) end
+			if(action_type == "spell") then 
+				if CastSpellByName(action_name, onSelf) then
+					-- store the time the spell/item was cast
+					NB.cooldowns[action_name] = time()		
+				end
+			end
 
 			-- deal with items
-			if(action_type == "item") then UseItemByName(action_name, onSelf) end
+			if(action_type == "item") then 
+				if UseItemByName(action_name, onSelf)  then
+					-- store the time the spell/item was cast
+					NB.cooldowns[action_name] = time()
+				end
+			end
 
 			-- go back to original target
-			TargetLastTarget();
+			if (action_target=="raid" or action_target == "party") and loops > 1 then TargetLastTarget() end
+
+
+			
 		else
 			-- all checks failed, do nothing
 		end
@@ -187,8 +214,15 @@ function NB.get_action_type(action_name)
 		end
 	end
 
-	-- TODO: add item and special support
-	return "spell"
+	if NB.SPELLCACHE[action_name] then 
+		return "spell"
+	end
+
+	if NB.ITEMCACHE[action_name] then 
+		return "item"
+	end	
+
+	return false
 
 end
 
