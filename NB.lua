@@ -42,72 +42,30 @@ end
 --
 function NB.slash_handler(msg)
 
-	-- split the arguments by [] brackets
+	-- parse the paramters to /nb
 	local parts = {}
-	local split = string.gsub(msg, "(%b[])", function (part) table.insert(parts, part) end)
+	local split = string.gsub(msg, "(%b[])", function (part) table.insert(parts, part) end) -- split the arguments by [] brackets
 
-	-- get the action name and action_target
-	local action_name, action_target = NB.get_action(parts)
+
+	local action_name, action_target = NB.get_action(parts) -- get the action name and action_target
 	action_name = string.lower(action_name)
 	action_target = string.lower(action_target)
 
-	-- do we have an item, spell or special?
-	-- specials are custom actions that can be found
-	-- in Actions.lua
-	local action_type = NB.get_action_type(action_name)
-
-	-- validate the action exists
-	-- check spell or item exists or if a special then the 
-	-- fucntion exists
-	if(action_type == "special") then
-		action_name = NB.get_APISpecial(action_name)
-		if NB.isFunctionDefined("NB.action_"..action_name) then
-			NB.error("Internal error, function NB.action_"..action_name.." is not defined")
-			return
-		end
-	elseif (action_type == "spell") then
-		if NB.SPELLCACHE[action_name] then 
-			action_name = NB.SPELLCACHE[action_name] 
-		else
-			NB.error("Parsing error spell \"action_name\" is not known.")
-			return
-		end
-	elseif (action_type == "item") then
-		if NB.ITEMCACHE[action_name] then 
-			action_name = NB.ITEMCACHE[action_name] 
-		else
-			NB.error("Parsing error item \"action_name\" is not known.")
-			return
-		end
-	end
-
-	-- Validate target of the action from list
-	if NB.get_APIActionTarget(action_target ~= "") then 
-		action_target = NB.get_APIActionTarget(action_target)
-	else
-		NB.error("Error parsing NefedButton action target, execution terminated.")
+	local action_type -- do we have an item, spell or special?
+	action_name, action_type, action_target = NB.validate_action(action_name) -- expand the action to its full name
+	if action_name == "" then -- deal with not finding a matching action
+		NB.error("Error parsing NefedButton, \"..action_name..\" is not a valid action.")
 		return
 	end
 
-	-- if we dont have an action target then use current if there is one
-	-- otherwise use player
-	local onSelf = true
-	if action_target and action_target ~= "player" then
-		if UnitExists("target") then
-			onSelf = false
-		end
-	end
-
 	-- Validate checks from list
-	local checks = NB.get_checks(parts)
+	local checks = NB.validate_checks(parts)
 	if not checks then
 		NB.error("Error parsing NefedButton checks, execution terminated.")
 		return
 	end
 	
---NB.print(action_name)
---NB.print(action_target)
---NB.print(action_type)
+
 	-- if we have a dynamic action target like group, raid, friendly, hostile
 	-- then we need to perform the checks for each and break out of the loop
 	-- as soon as we find someone who passes all the checks.
@@ -140,17 +98,17 @@ function NB.slash_handler(msg)
 				end
 			end
 
-			-- deal with spells
+			-- deal with spell actions
 			if(action_type == "spell") then 
-				if CastSpellByName(action_name, onSelf) then
+				if CastSpellByName(action_name, action_target == "player") then
 					-- store the time the spell/item was cast
 					NB.cooldowns[action_name] = time()		
 				end
 			end
 
-			-- deal with items
+			-- deal with item actions
 			if(action_type == "item") then 
-				if UseItemByName(action_name, onSelf)  then
+				if UseItemByName(action_name, action_target == "player")  then
 					-- store the time the spell/item was cast
 					NB.cooldowns[action_name] = time()
 				end
@@ -158,8 +116,6 @@ function NB.slash_handler(msg)
 
 			-- go back to original target
 			if (action_target=="raid" or action_target == "party") and loops > 1 then TargetLastTarget() end
-
-
 			
 		else
 			-- all checks failed, do nothing
@@ -197,39 +153,12 @@ function NB.get_action(parts)
 end
 
 
------------------------------------------
--- Returns the type of action:
--- spell, item, special
---
-function NB.get_action_type(action_name)
 
-	local api_action = ""
-
-	-- deal with special actions
-	for k,v in pairs(NB.SPECIALACTIONS) do
-
-		if k == action_name then
-			do return "special" end
-			break
-		end
-	end
-
-	if NB.SPELLCACHE[action_name] then 
-		return "spell"
-	end
-
-	if NB.ITEMCACHE[action_name] then 
-		return "item"
-	end	
-
-	return false
-
-end
 
 -----------------------------------------
 -- Returns the API correct action target
 --
-function NB.get_APIActionTarget(target)
+function NB.get_validate_action_target(target)
 
 	local api_target = ""
 	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then api_target = v break end end
@@ -290,7 +219,7 @@ end
 -- Splits the checks into a table of
 -- tables.
 --
-function NB.get_checks(parts)
+function NB.validate_checks(parts)
 	local checkTable = {}
 	table.remove(parts, 1) -- remove the action/action_target
 	for i, k in parts do
@@ -365,5 +294,44 @@ function NB.do_checks(checks, action_target, loop_iteration)
 	return true
 
 end
+
+
+-----------------------------------------
+-- Returns the type of action:
+-- spell, item, special
+--
+function NB.validate_action(action_name, action_target)
+
+	local api_target = "" -- check the target is valid
+	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == target then action_target = v break end end
+	-- if we dont have an action target then use current if there is one
+	-- otherwise use player
+	if action_target == "" then -- if we have a blank target then set to target if we have one, or player if not
+		if UnitExists("target") then action_target = "target" else action_target = "player" end
+	end
+
+
+	for k,v in pairs(NB.SPECIALACTIONS) do 	-- deal with special actions
+
+		if k == action_name then
+			do return v, "special", action_target end
+			break
+		end
+	end
+
+	if NB.SPELLCACHE[action_name] then  -- deal with spell actions
+		return NB.SPELLCACHE[action_name], "spell", action_target
+	end
+
+	if NB.ITEMCACHE[action_name] then -- deal with item actions
+		return NB.ITEMCACHE[action_name], "item", action_target
+	end	
+
+	return "", "", ""
+
+end
+
+
+
 
 
