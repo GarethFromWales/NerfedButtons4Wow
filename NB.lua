@@ -331,9 +331,13 @@ function NB.populateSpellCache()
 	   
 	   if not spellName then do break end end
 
-	   NB.putSpellIntoCache(spellName) 
-	   
-	   --DEFAULT_CHAT_FRAME:AddMessage( spellName .. '(' .. spellRank .. ')' )
+		-- hack to deal with (Feral) spells that require a rank or () to cast
+		local s = gsub(spellName, "%s*(.*)%s*%(.*","%1")
+		if ( string.find(spellName, "%(%s*[Ff]eral")) then
+		s=s.."(Feral)()";
+		end
+
+	   NB.putSpellIntoCache(s) 
 	   
 	   i = i + 1
 	end

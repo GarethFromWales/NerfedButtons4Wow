@@ -1,6 +1,5 @@
 if NB == nil then NB = {} end
 
-
 NB.SPELLCACHE = { }
 NB.ITEMCACHE = { }
 
