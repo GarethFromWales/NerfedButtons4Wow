@@ -98,9 +98,7 @@ function NB.slash_handler(msg)
 
 			-- deal with spell actions
 			if(action_type == "spell") then 
-
 				if CastSpellByName(action_name, action_target == "player") then
-
 					-- store the time the spell/item was cast
 					NB.cooldowns[action_name] = time()		
 				end
@@ -267,7 +265,6 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		
 		if not UnitExists(ctarget) then return false end
 
-
 		-- check the check function actually exists
 		if NB.isFunctionDefined("NB.check_"..ctype) then
 			NB.error("Internal error, function NB.check_"..ctype.." is not defined")
@@ -275,7 +272,7 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		end
 
 		-- call the check function and return false if it fails
-		if not NB["check_"..ctype](ctarget, cvalue) then return false end
+		return NB["check_"..ctype](ctarget, cvalue)
 
 	end
 

@@ -122,4 +122,16 @@ NB.VALIDDRUIDFORMS = {
 };
 
 
+NB.CONDITIONS = {
+	["c"] = "curse",
+	["curse"] = "curse",
+	["p"] = "poison",
+	["poison"] = "poison",
+	["m"] = "magic",
+	["magic"] = "magic",
+	["d"] = "disease",
+	["disease"] = "disease"
+}
+
+
 

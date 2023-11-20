@@ -53,7 +53,6 @@ function NB.check_buff(unit, buffName)
     if modifier == "!" and gotbuff == false then
         return true
     end    
-
     
     return false;
 end
@@ -190,15 +189,15 @@ end
 -----------------------------------------
 -- Check: Con(ditions)
 --
-function NB.check_condition(unit, type)
+function NB.check_condition(unit, typeCheck)
 
     -- get test modifier !
-    local modifier = string.sub(type, 1, 1)
+    local modifier = string.sub(typeCheck, 1, 1)
     local charList = {'!'}
     if not NB.isCharInList(modifier, charList) then
         modifier = ""
     else
-        type = string.sub(type, 2)
+        typeCheck = string.sub(typeCheck, 2)
     end   
 
     local gotcurse = false
@@ -206,32 +205,35 @@ function NB.check_condition(unit, type)
     local gotmagic = false
     local gotdisease = false
     for i=1,40 do 
-        local name, rank, type, rest = UnitDebuff(unit, i); 
-        if type=="Curse" then gotcurse = true end
-        if type=="Poison" then gotpoison = true end
-        if type=="Magic" then gotmagic = true end
-        if type=="Disease" then gotdisease = true end
+        local name, rank, typeHas, rest = UnitDebuff(unit, i); 
+        if typeHas then
+            typeHas = string.lower(typeHas)
+            if typeHas=="curse" then gotcurse = true end
+            if typeHas=="poison" then gotpoison = true end
+            if typeHas=="magic" then gotmagic = true end
+            if typeHas=="disease" then gotdisease = true end
+        end
     end
 
     -- finally use the modifier to decide on true/false
-    if type == "curse" and modifier == "" and gotcurse == true then
+    if typeCheck == "curse" and modifier == "" and gotcurse == true then
         return true
-    elseif type == "curse" and modifier == "!" and gotcurse == false then
+    elseif typeCheck == "curse" and modifier == "!" and gotcurse == false then
         return true
     end   
-    if type == "poison" and modifier == "" and gotpoison == true then
+    if typeCheck == "poison" and modifier == "" and gotpoison == true then
         return true
-    elseif type == "poison" and modifier == "!" and gotpoison == false then
-        return true
-    end  
-    if type == "magic" and modifier == "" and gotmagic == true then
-        return true
-    elseif type == "magic" and modifier == "!" and gotmagic == false then
+    elseif typeCheck == "poison" and modifier == "!" and gotpoison == false then
         return true
     end  
-    if type == "disease" and modifier == "" and gotdisease == true then
+    if typeCheck == "magic" and modifier == "" and gotmagic == true then
         return true
-    elseif type == "disease" and modifier == "!" and gotdisease == false then
+    elseif typeCheck == "magic" and modifier == "!" and gotmagic == false then
+        return true
+    end  
+    if typeCheck == "disease" and modifier == "" and gotdisease == true then
+        return true
+    elseif typeCheck == "disease" and modifier == "!" and gotdisease == false then
         return true
     end   
     
