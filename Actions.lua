@@ -5,6 +5,8 @@ if NB == nil then NB = {} end
 --
 function NB.action_cancel(buffName)
 
+    buffName = string.lower(buffName)
+
     local unit="player"
     local text = getglobal(NBTooltip:GetName().."TextLeft1");
     for i=1, 32 do
@@ -12,14 +14,12 @@ function NB.action_cancel(buffName)
        NBTooltip:SetUnitBuff(unit, i);
        local name = text:GetText();
        NBTooltip:Hide();
-       buffName = string.gsub(buffName, "_", " ");
+       if name then name = string.lower(name) end
        if ( name and string.find(name, buffName) ) then
-
             CancelPlayerBuff(i-1);
             return true
        end
     end
-
 end
 
 
