@@ -132,7 +132,6 @@ end
 -----------------------------------------
 -- Check: Cooldown
 -- e.g. HT30 (only pass if there has been 30 secodns since HT was last cast)
-NB.cooldowns = {} -- global to hold fake cooldowns
 function NB.check_cooldown(unit, spellAndCooldown)
 NB.print(spellAndCooldown)
     local letters, numbers
@@ -141,8 +140,15 @@ NB.print(spellAndCooldown)
     NB.print(numbers)
     -- look up spell
     local realSpellName = NB.getSpellFromCache(letters)
-    if time() > tonumber(NB.cooldowns[realSpellName]) + tonumber(numbers) then
+    NB.print(realSpellName)
+    if not NB.cooldowns[realSpellName] then
+        NB.print("first")
         return true
+    else
+        if time() > tonumber(NB.cooldowns[realSpellName]) + tonumber(numbers) then
+            NB.print(NB.cooldowns[realSpellName])
+            return true
+        end
     end
 
     return false
@@ -191,6 +197,8 @@ end
 --
 function NB.check_condition(unit, typeCheck)
 
+    NB.print("--Called check_condition-->")
+
     -- get test modifier !
     local modifier = string.sub(typeCheck, 1, 1)
     local charList = {'!'}
@@ -214,6 +222,11 @@ function NB.check_condition(unit, typeCheck)
             if typeHas=="disease" then gotdisease = true end
         end
     end
+
+    NB.print("curse: "..gotcurse)
+    NB.print("poison: "..gotpoison)
+    NB.print("magic: "..gotmagic)
+    NB.print("disease: "..gotdisease)
 
     -- finally use the modifier to decide on true/false
     if typeCheck == "curse" and modifier == "" and gotcurse == true then

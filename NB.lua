@@ -5,6 +5,7 @@ local NerfedButtonsAuthor  = "NerfedWar; Vanilla adaptation of NerfedButtons.";
 local debug = true
 
 if NB == nil then NB = {} end
+NB.cooldowns = {} -- global to hold fake cooldowns
 
 
 NB.NerfedButtonsLoaded = false;
@@ -100,8 +101,9 @@ function NB.slash_handler(msg)
 			if(action_type == "spell") then 
 				if CastSpellByName(action_name, action_target == "player") then
 					-- store the time the spell/item was cast
-					NB.cooldowns[action_name] = time()		
+							
 				end
+				NB.cooldowns[action_name] = time()
 			end
 
 			-- deal with item actions
@@ -421,6 +423,7 @@ end
 --
 function NB.getSpellFromCache(spell) 
 
+	spell = string.lower(spell)
 	if NB.SPELLCACHE[spell] then
 		return NB.SPELLCACHE[spell]
     else
