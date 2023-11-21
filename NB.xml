@@ -14,6 +14,7 @@
     <Scripts>
       <OnLoad>
         this:RegisterEvent("VARIABLES_LOADED");
+        this:RegisterEvent("ADDON_LOADED");
         self = {};
       </OnLoad>
       <OnEvent>

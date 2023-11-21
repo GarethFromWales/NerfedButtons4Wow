@@ -133,20 +133,18 @@ end
 -- Check: Cooldown
 -- e.g. HT30 (only pass if there has been 30 secodns since HT was last cast)
 function NB.check_cooldown(unit, spellAndCooldown)
-NB.print(spellAndCooldown)
+
     local letters, numbers
     gsub (spellAndCooldown, "^(%a+)(%d+)$", function (a, b) letters = a; numbers = b end)
-    NB.print(letters)
-    NB.print(numbers)
+
     -- look up spell
     local realSpellName = NB.getSpellFromCache(letters)
-    NB.print(realSpellName)
+
     if not NB.cooldowns[realSpellName] then
-        NB.print("first")
+
         return true
     else
         if time() > tonumber(NB.cooldowns[realSpellName]) + tonumber(numbers) then
-            NB.print(NB.cooldowns[realSpellName])
             return true
         end
     end
@@ -197,8 +195,6 @@ end
 --
 function NB.check_condition(unit, typeCheck)
 
-    NB.print("--Called check_condition-->")
-
     -- get test modifier !
     local modifier = string.sub(typeCheck, 1, 1)
     local charList = {'!'}
@@ -206,49 +202,23 @@ function NB.check_condition(unit, typeCheck)
         modifier = ""
     else
         typeCheck = string.sub(typeCheck, 2)
-    end   
+    end     
+    typeCheck = NB.CONDITIONS[typeCheck]
+    if not typeCheck then
+        NB.error("Invalid condition type passed: \""..typeCheck.."\".")
+    end
 
-    local gotcurse = false
-    local gotpoison = false
-    local gotmagic = false
-    local gotdisease = false
     for i=1,40 do 
         local name, rank, typeHas, rest = UnitDebuff(unit, i); 
         if typeHas then
             typeHas = string.lower(typeHas)
-            if typeHas=="curse" then gotcurse = true end
-            if typeHas=="poison" then gotpoison = true end
-            if typeHas=="magic" then gotmagic = true end
-            if typeHas=="disease" then gotdisease = true end
+            if typeHas == typeCheck then
+                if modifier == "" then
+                    return true
+                end
+            end
         end
     end
-
-    NB.print("curse: "..gotcurse)
-    NB.print("poison: "..gotpoison)
-    NB.print("magic: "..gotmagic)
-    NB.print("disease: "..gotdisease)
-
-    -- finally use the modifier to decide on true/false
-    if typeCheck == "curse" and modifier == "" and gotcurse == true then
-        return true
-    elseif typeCheck == "curse" and modifier == "!" and gotcurse == false then
-        return true
-    end   
-    if typeCheck == "poison" and modifier == "" and gotpoison == true then
-        return true
-    elseif typeCheck == "poison" and modifier == "!" and gotpoison == false then
-        return true
-    end  
-    if typeCheck == "magic" and modifier == "" and gotmagic == true then
-        return true
-    elseif typeCheck == "magic" and modifier == "!" and gotmagic == false then
-        return true
-    end  
-    if typeCheck == "disease" and modifier == "" and gotdisease == true then
-        return true
-    elseif typeCheck == "disease" and modifier == "!" and gotdisease == false then
-        return true
-    end   
     
     return false
 

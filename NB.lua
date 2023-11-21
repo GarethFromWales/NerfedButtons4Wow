@@ -15,8 +15,13 @@ NB.NerfedButtonsLoaded = false;
 -- React to events
 --
 function NerfedButtons_EventHandler()
+	
+	if (event=="ADDON_LOADED" ) then NerfedButtons_OnAddonLoaded(); end
+	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnVariablesLoaded(); end
 
-	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnAddonLoaded(); end
+		-- populate the spell and item cache
+		NB.populateSpellCache() 
+		--NB.populateItemCache() 
 
 end
 
@@ -25,6 +30,19 @@ end
 -- Initialises NerfedButtons
 --
 function NerfedButtons_OnAddonLoaded()
+	-- placeholder for now, this seems to get called many times on
+	-- a UI reload which isn't very useful. IN addition, the addon
+	-- isn't fully initialised at this point, confusing to say the least :)
+end
+
+
+-----------------------------------------
+-- Initialises NerfedButtons
+--
+function NerfedButtons_OnVariablesLoaded()
+
+	-- this gets called once per UI reload but again isn't very 
+	-- trustworthy as the addon itself isn't loaded as yet.
 
 	-- Register the slash handles
 	SlashCmdList["NERFEDBUTTONS"] = NB.slash_handler
@@ -33,10 +51,6 @@ function NerfedButtons_OnAddonLoaded()
 	NB.print("NerfedButtons Loaded. Usage information at:");
 	NB.print("https://github.com/GarethFromWales/NerfedButtons4Wow")
 
-	-- populate the spell and item cache
-	NB.populateSpellCache() 
-	--NB.populateItemCache() 
-
 end
 
 
@@ -44,6 +58,14 @@ end
 -- Parse the /nb command
 --
 function NB.slash_handler(msg)
+
+	-- if the spell and item caches are not populated, do it now
+	-- TODO: would be better if this happened on init of addon but
+	-- having trouble working out how to do that.
+	if not NB.getSpellFromCache("Attack") then
+		NB.populateSpellCache() 
+		--NB.populateItemCache() 
+	end
 
 	-- parse the paramters to /nb
 	local parts = {}
@@ -54,7 +76,7 @@ function NB.slash_handler(msg)
 	local action_type -- do we have an item, spell or special?
 	action_name, action_type, action_target = NB.validate_action(action_name, action_target) -- expand the action to its full name
 	if action_name == "" then -- deal with not finding a matching action
-		NB.error("Error parsing NefedButton, \""..action_name.."\" is not a valid action.")
+		NB.error("Error parsing NerfedButton, \""..action_name.."\" is not a valid action.")
 		return
 	end
 
@@ -100,18 +122,17 @@ function NB.slash_handler(msg)
 			-- deal with spell actions
 			if(action_type == "spell") then 
 				if CastSpellByName(action_name, action_target == "player") then
-					-- store the time the spell/item was cast
-							
+					
 				end
-				NB.cooldowns[action_name] = time()
+				NB.cooldowns[action_name] = time() -- store the time the spell/item was cast
 			end
 
 			-- deal with item actions
 			if(action_type == "item") then 
 				if UseItemByName(action_name, action_target == "player")  then
-					-- store the time the spell/item was cast
-					NB.cooldowns[action_name] = time()
+					
 				end
+				NB.cooldowns[action_name] = time() -- store the time the spell/item was cast
 			end
 
 			-- go back to original target
@@ -210,6 +231,7 @@ function NB.validate_checks(parts)
 	local checkTable = {}
 	table.remove(parts, 1) -- remove the action/action_target
 	for i, k in parts do
+
 		local _, _, check_type, _ = string.find(k, "(%b[:)")
 
 		-- extract the type of check to be performed and
@@ -242,7 +264,7 @@ function NB.validate_checks(parts)
 			NB.error("Error parsing check, execution terminated. \""..check_value.."\" is not a valid check value.")
 			return false
 		end
-		
+
 		table.insert(checkTable, {check_type, check_target, check_value})
 	end
 	return checkTable
@@ -255,7 +277,8 @@ end
 -- else false
 function NB.do_checks(checks, action_target, loop_iteration)
 
-	for i, k in checks do
+	for i, k in ipairs(checks) do
+
 		local ctype = k[1]
 		local ctarget = k[2]
 		local cvalue = k[3]
@@ -274,8 +297,13 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		end
 
 		-- call the check function and return false if it fails
-		return NB["check_"..ctype](ctarget, cvalue)
-
+		local checkPass =  NB["check_"..ctype](ctarget, cvalue)
+		if checkPass then 
+			--NB.print("Check: ["..ctype..":"..ctarget..":"..cvalue.."] PASSED")
+		else
+			--NB.print("Check: ["..ctype..":"..ctarget..":"..cvalue.."] FAILED")
+			return false -- a check has failed, no need to continur checking the other checks
+		end
 	end
 
 	return true
