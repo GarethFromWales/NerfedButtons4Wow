@@ -10,6 +10,8 @@ function NB.check_buff(unit, buffName)
         return false;
     end
 
+    buffName = string.lower(buffName)
+
     -- get test modifier !
     local modifier = string.sub(buffName, 1, 1)
     local charList = {'!'}
@@ -26,8 +28,9 @@ function NB.check_buff(unit, buffName)
 		NBTooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		NBTooltip:SetUnitBuff(unit, i);
 		local name = text:GetText();
+        if name then name = string.lower(name) end
 		NBTooltip:Hide();
-        buffName = string.gsub(buffName, "_", " ");
+        --buffName = string.gsub(buffName, "_", " ");
 		if ( name and string.find(name, buffName) ) then
 			gotbuff =  true;
 		end
@@ -39,8 +42,9 @@ function NB.check_buff(unit, buffName)
 		NBTooltip:SetOwner(UIParent, "ANCHOR_NONE");
 		NBTooltip:SetUnitDebuff(unit, i);
 		local name = text:GetText();
+        if name then name = string.lower(name) end
 		NBTooltip:Hide();
-        buffName = string.gsub(buffName, "_", " ");
+        --buffName = string.gsub(buffName, "_", " ");
 		if ( name and string.find(name, buffName) ) then
 			gotbuff =  true;
 		end
