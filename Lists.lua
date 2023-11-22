@@ -70,8 +70,8 @@ NB.VALIDCHECKTARGETS = {
 	["player"] = "player",
 	["t"] = "target",
 	["target"] = "target",
-	["d"] = "dynamic",
-	["dynamic"] = "dynamic"
+	["s"] = "smart",
+	["smart"] = "smart"
 }
 
 -- list of valid classes, long and short forms

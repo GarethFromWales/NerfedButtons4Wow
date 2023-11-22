@@ -47,6 +47,16 @@ end
 
 
 -----------------------------------------
+-- Util: Output to chat if debug enabled
+--
+function NB.debug(msg)
+	if not NB.debugEnabled then return end
+    if (DEFAULT_CHAT_FRAME) then
+        DEFAULT_CHAT_FRAME:AddMessage("NB: "..msg, 0, 1, 1);
+    end
+end
+
+-----------------------------------------
 -- Util: Returns the number of people in a riad or party
 -- adds an extra one to party count as it doesn't 
 -- include the player.
@@ -64,6 +74,18 @@ function NB.getMemberCount()
 		end
 	end
 	return count
+end
+
+
+function NB.trim(str)
+
+	if not str then
+		NB.error("Util.trim() - Could not trim nil.")
+		return false
+	end
+
+	return gsub(str, "^%s*(.-)%s*$", "%1")
+
 end
 
 

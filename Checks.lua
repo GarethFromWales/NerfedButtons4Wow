@@ -5,21 +5,12 @@ if NB == nil then NB = {} end
 -----------------------------------------
 -- Check: Buff
 --
-function NB.check_buff(unit, buffName)
+function NB.check_buff(unit, operator, buffName)
     if not buffName or not unit then
         return false;
     end
 
     buffName = string.lower(buffName)
-
-    -- get test modifier !
-    local modifier = string.sub(buffName, 1, 1)
-    local charList = {'!'}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = ""
-    else
-        buffName = string.sub(buffName, 2)
-    end    
     
     -- look for buff
     local gotbuff = false
@@ -51,10 +42,10 @@ function NB.check_buff(unit, buffName)
     end    
 
     -- finally use the modifier to decide on true/false
-    if modifier == "" and gotbuff == true then
+    if operator == "" and gotbuff == true then
         return true
     end
-    if modifier == "!" and gotbuff == false then
+    if operator == "!" and gotbuff == false then
         return true
     end    
     

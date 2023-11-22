@@ -2,12 +2,11 @@
 local NerfedButtonsVersion = "1.0.0-Vanilla";
 local NerfedButtonsAuthor  = "NerfedWar; Vanilla adaptation of NerfedButtons.";
 
-local debug = true
+
 
 if NB == nil then NB = {} end
 NB.cooldowns = {} -- global to hold fake cooldowns
-
-
+NB.debugEnabled = true
 NB.NerfedButtonsLoaded = false;
 
 
@@ -15,34 +14,16 @@ NB.NerfedButtonsLoaded = false;
 -- React to events
 --
 function NerfedButtons_EventHandler()
-	
-	if (event=="ADDON_LOADED" ) then NerfedButtons_OnAddonLoaded(); end
 	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnVariablesLoaded(); end
-
-		-- populate the spell and item cache
-		NB.populateSpellCache() 
-		--NB.populateItemCache() 
-
-end
-
-	
------------------------------------------
--- Initialises NerfedButtons
---
-function NerfedButtons_OnAddonLoaded()
-	-- placeholder for now, this seems to get called many times on
-	-- a UI reload which isn't very useful. IN addition, the addon
-	-- isn't fully initialised at this point, confusing to say the least :)
 end
 
 
 -----------------------------------------
--- Initialises NerfedButtons
+-- Outputs loaded and usage message to chat
 --
 function NerfedButtons_OnVariablesLoaded()
 
-	-- this gets called once per UI reload but again isn't very 
-	-- trustworthy as the addon itself isn't loaded as yet.
+	-- this gets called once per UI reload.
 
 	-- Register the slash handles
 	SlashCmdList["NERFEDBUTTONS"] = NB.slash_handler
@@ -54,45 +35,77 @@ function NerfedButtons_OnVariablesLoaded()
 end
 
 
------------------------------------------
--- Parse the /nb command
---
+--[[
+	Parse the /nb command
+--]]
 function NB.slash_handler(msg)
 
-	-- if the spell and item caches are not populated, do it now
-	-- TODO: would be better if this happened on init of addon but
-	-- having trouble working out how to do that.
+	-- populate spell and item cache if not populated
 	if not NB.getSpellFromCache("Attack") then
-		NB.populateSpellCache() 
+		NB.populateSpellCache()
 		--NB.populateItemCache() 
 	end
 
-	-- parse the paramters to /nb
-	local parts = {}
-	local split = string.gsub(msg, "(%b[])", function (part) table.insert(parts, part) end) -- split the arguments by [] brackets
+	-- extract the ACTION and CONDITIONS from the command-line string
+	-- Example: "Flame Shock@target [buff@target!=Flame Shock, health@target>50%]"
+	-- Example: "FS@t [b@t!FS,h@t>50%]"
+	-- Example: "FS [b@t!FS,h@t>50%]"
+	-- Example: "FS [b!FS,h>50%]"
+	-- Example: "FS"
+	local before_bracket = NB.trim(gsub(msg, "%[.-%]", ""))
+	local inside_brackets = NB.trim(gsub(msg, "^.-%[(.-)%].-$", "%1"))
 
-	local action_name, action_target = NB.split_action(parts) -- get the action name and action_target
+	-- extract the ACTION_NAME and ACTION_TARGET
+	-- Example: "Flame Shock@target"
+	-- Example: "FS@t"
+	local action_name, action_target = "", ""
+	action_name = gsub(before_bracket, "@.*$", "") -- "Flame Shock"
+	local _, countAt = gsub(before_bracket, "@", "@")
+	if countAt > 0 then
+		action_target = gsub(before_bracket, "^.*@", "") -- "target"
+	else
+		action_target = ""
+	end
 
-	local action_type -- do we have an item, spell or special?
-	action_name, action_type, action_target = NB.validate_action(action_name, action_target) -- expand the action to its full name
-	if action_name == "" then -- deal with not finding a matching action
-		NB.error("Error parsing NerfedButton, \""..action_name.."\" is not a valid action.")
+	-- validate what we've got and obtain the type of action.
+	-- we stop here if we don't get a propper validated spell/item/special.
+	local action_type = "" -- do we have an item, spell or special?=
+	action_name, action_type, action_target = NB.extract_and_validate_action(action_name, action_target)
+	if action_name == "" or action_type == "" or action_target == "" then
+		NB.error("Error parsing NB: "..msg)
+		NB.error("Refer to documentation and try again.")
 		return
 	end
 
-	-- Validate checks from list
-	local checks = NB.validate_checks(parts)
+	--[[ 	Where are we at so far?
+			action name and target have been parsed correctly and we've determined if the action
+			is a spell, item or special. We've also set the target to the player if no target is
+			passed as a parameter and the player has notbody targtted. The target is set to target
+			if no target is passed and the payer does have something targetted.
+			Next up, lets parse the checks... 	]]--
+
+	local checkString = inside_brackets;
+	NB.debug("NB.slash_handler - Check string: "..inside_brackets)
+	local checks = {}
+	gsub(inside_brackets, '([^,]+)', function(c) c = NB.trim(c) table.insert(checks, c) end)
+
+	-- validate checks from list
+	-- returned as table of {name = check_name, target = check_target, operator = checkOperator, value = checkValue }
+	checks = NB.extract_and_validate_checks(checks)
 	if not checks then
-		NB.error("Error parsing NefedButton checks, execution terminated.")
+		NB.error("Error parsing NerfedButton checks, execution terminated.")
 		return
 	end
+
+	--do return end
 
 	-- if we have a dynamic action target like group, raid, friendly, hostile
 	-- then we need to perform the checks for each and break out of the loop
 	-- as soon as we find someone who passes all the checks.
 	local loops = 1
-	-- if action_target == "friendly" then loops = 10 end
-	-- if action_target == "hostile" then loops = 10 end
+	-- TODO friendly and hostile will cause issues inside do_checks without refactoring
+	--if action_target == "friendly" then loops = 10 end -- loop through closest 10 allies
+	--if action_target == "hostile" then loops = 10 end -- loop through closest 10 enemies
 	if action_target == "party" then loops = NB.getMemberCount() end
 	if action_target == "raid" then loops = NB.getMemberCount() end
 
@@ -100,6 +113,7 @@ function NB.slash_handler(msg)
 	for i = 1, loops do
 
 		-- if we're in a party we need to add the player as the last target of the loop
+		-- TODO: does this need to be limited to party? and not raid as well?
 		if loops > 1 and i == loops then action_target = "player" end
 
 		-- Run all the checks. If they all pass then
@@ -142,6 +156,78 @@ function NB.slash_handler(msg)
 			-- all checks failed, do nothing
 		end
 	end
+
+end
+
+
+--[[
+	Validates and corrects the name and target of and action.
+	Returns the name, type and target where to type is
+	either: spell, item or special
+--]]
+function NB.extract_and_validate_action(orig_action_name, orig_action_target)
+
+	if not orig_action_name or orig_action_name == "" then
+		NB.error("Invalid empty action, refer to documentation.")
+		return "", "", ""
+	end
+
+	local action_name = string.lower(orig_action_name)
+	local action_target = string.lower(orig_action_target)
+
+	NB.debug("va 1:"..action_name)
+	NB.debug("va 1:"..action_target)
+
+	-- just like action names, the target can be abbreviated, so we look it up to get the full version
+	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == action_target then action_target = v break end end
+	-- if we dont have an action target then use current if there is one
+	-- otherwise use player
+	if action_target == "" then -- if we have a blank target then set to target if we have one, or player if not
+		if UnitExists("target") then action_target = "target" else action_target = "player" end
+	end
+	if not action_target or action_target == "" then
+		NB.error("Invalid action target, refer to documentation.")
+		return "", "", ""
+	end
+
+	NB.debug("va 2:"..action_name)
+	NB.debug("va 2:"..action_target)	
+
+	for k,v in pairs(NB.SPECIALACTIONS) do 	-- deal with special actions
+		if k == action_name then
+			action_name = v
+			local action_type = "special"
+			NB.debug("va 3.1:"..action_name)
+			NB.debug("va 3.1:"..action_type)
+			NB.debug("va 3.1:"..action_target)
+			do return action_name, "special", action_target end
+			break
+		end
+	end	
+
+	if NB.SPELLCACHE[action_name] then  -- deal with spell actions
+		action_name = NB.SPELLCACHE[action_name]
+		local action_type = "spell"
+		NB.debug("va 3.2:"..action_name)
+		NB.debug("va 3.2:"..action_type)
+		NB.debug("va 3.2:"..action_target)		
+		return action_name, "spell", action_target
+	end
+
+	if NB.ITEMCACHE[action_name] then -- deal with item actions
+		action_name = NB.ITEMCACHE[action_name]
+		local action_type = "item"
+		NB.debug("va 3.3:"..action_name)
+		NB.debug("va 3.3:"..action_type)
+		NB.debug("va 3.3:"..action_target)				
+		return action_name, "item", action_target
+	end	
+
+	-- we have an invalid action_name (e.g. possibly the character doesnt know this spell)
+	NB.error("Invalid action passed: "..orig_action_name)
+	NB.error("Ensure a valid spell/item/special name is passed that this character knows/posseses.")
+
+	return "", "", ""
 
 end
 
@@ -227,47 +313,70 @@ end
 -- Splits the checks into a table of
 -- tables.
 --
-function NB.validate_checks(parts)
-	local checkTable = {}
-	table.remove(parts, 1) -- remove the action/action_target
-	for i, k in parts do
+function NB.extract_and_validate_checks(checks)
+	local validatedChecks = {}
 
-		local _, _, check_type, _ = string.find(k, "(%b[:)")
+	for i, v in ipairs(checks) do
+		local checkString = v
+		NB.debug("NB.extract_and_validate_checks - Check item: "..checkString)
 
-		-- extract the type of check to be performed and
-		-- expand it to the full string version we can use to call
-		-- the check function in Checks.lua
-		check_type = string.sub(check_type, 2, -2)
-		if NB.validate_check_name(check_type ~= "") then 
-			check_type = NB.validate_check_name(check_type) -- get NB API correct form of check name
-		else
-			NB.error("Error parsing check, execution terminated. \""..check_type.."\" is not a valid check type.")
-			return false
-		end				
+		-- checks are formatted as: [buff@player=Rejuvenation]
+		-- ampersand is optional so split on the following modifiers !=><
+		-- this will give us: 
+		-- 1. buff@player
+		-- 2. =
+		-- 3. Rejuvenation
 
-		-- extract the target of the check to be performed and
-		-- expand it to the full string version the WoW API
-		-- understands.
-		local _, _, check_target, _ = string.find(k, "(%b::)")
-		check_target = string.sub(check_target, 2, -2)	
-		if NB.validate_check_target(check_target ~= "") then 
-			check_target = NB.validate_check_target(check_target) -- get WoW API correct form of target name
-		else
-			NB.error("Error parsing check, execution terminated. \""..check_target.."\" is not a valid check target.")
-			return false
-		end		
+		gsub(checkString, '([^=!<>]+)([=!<>])([^=!<>]+)', function(checkAndTarget, checkOperator, checkValue) 
 
-		-- Get the value to test in the check
-		local _, _, check_value, _ = string.find(k, "(%b:])")
-		check_value = string.sub(check_value, 2, -2)
-		if not string.find(check_value, "^[<>=!]?[%w]+") then
-			NB.error("Error parsing check, execution terminated. \""..check_value.."\" is not a valid check value.")
-			return false
-		end
-		check_value = string.lower(check_value)
-		table.insert(checkTable, {check_type, check_target, check_value})
+			-- bit of trimming
+			NB.trim(checkAndTarget)
+			NB.trim(checkOperator)
+			NB.trim(checkValue)
+
+			local check_name, check_target = "", ""
+			check_name = gsub(checkAndTarget, "@.*$", "")
+			local _, countAt = gsub(checkAndTarget, "@", "@")
+			if countAt > 0 then
+				check_target = gsub(checkAndTarget, "^.*@", "")
+			else
+				check_target = ""
+			end
+			NB.trim(check_name)
+			NB.trim(check_target)
+
+			-- validate the name
+			if NB.validate_check_name(check_name ~= "") then 
+				check_name = NB.validate_check_name(check_name) -- get NB API correct form of check name
+			else
+				NB.error("Error parsing check, execution terminated. \""..check_name.."\" is not a valid check name.")
+				do return false end
+			end	
+			
+			-- validate the target
+			if NB.validate_check_target(check_target ~= "") then 
+				check_target = NB.validate_check_target(check_target) -- get WoW API correct form of target name
+			else
+				NB.error("Error parsing check, execution terminated. \""..check_target.."\" is not a valid check target.")
+				do return false end
+			end		
+
+			-- validate the operator
+			local operatorOK = false
+			gsub(checkOperator, '([=!<>])', function(c) operatorOK = true end)
+			if not operatorOK then 
+				NB.error("Error parsing check, invalid operator passed. Refer to documentation.")
+				do return false end
+			end
+
+			-- validate the value. This we cannot do as it depends on the check. Value validation is done inside the check function.
+			NB.debug("NB.extract_and_validate_checks - Split Check item: "..check_name.."   "..check_target.."   "..checkOperator.."   "..checkValue)
+			table.insert(validatedChecks, {name = check_name, target = check_target, operator = checkOperator, value = checkValue })
+
+		end)
 	end
-	return checkTable
+
+	return validatedChecks
 end
 
 
@@ -277,13 +386,23 @@ end
 -- else false
 function NB.do_checks(checks, action_target, loop_iteration)
 
+	-- checks is a table of: {name = check_name, target = check_target, operator = checkOperator, value = checkValue }
+
 	for i, k in ipairs(checks) do
 
-		local ctype = k[1]
-		local ctarget = k[2]
-		local cvalue = k[3]
+		local cname = k["name"]
+		local ctarget = k["target"]
+		local coperator = k["operator"]
+		local cvalue = k["value"]
 
-		if ctarget == "dynamic" then
+		NB.print(action_target)
+		NB.print(loop_iteration)
+		NB.print(cname)
+		NB.print(ctarget)
+		NB.print(coperator)
+		NB.print(cvalue)
+
+		if ctarget == "smart" then
 			ctarget = action_target..loop_iteration;
 			if action_target == "player" then ctarget="player" end
 		end
@@ -291,17 +410,17 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		if not UnitExists(ctarget) then return false end
 
 		-- check the check function actually exists
-		if NB.isFunctionDefined("NB.check_"..ctype) then
-			NB.error("Internal error, function NB.check_"..ctype.." is not defined")
+		if NB.isFunctionDefined("NB.check_"..cname) then
+			NB.error("Internal error, function NB.check_"..cname.." is not defined")
 			return false
 		end
 
 		-- call the check function and return false if it fails
-		local checkPass =  NB["check_"..ctype](ctarget, cvalue)
+		local checkPass =  NB["check_"..cname](ctarget, coperator, cvalue)
 		if checkPass then 
-			--NB.print("Check: ["..ctype..":"..ctarget..":"..cvalue.."] PASSED")
+			NB.print("Check: ["..cname..":"..ctarget..":"..cvalue.."] PASSED")
 		else
-			--NB.print("Check: ["..ctype..":"..ctarget..":"..cvalue.."] FAILED")
+			NB.print("Check: ["..cname..":"..ctarget..":"..cvalue.."] FAILED")
 			return false -- a check has failed, no need to continur checking the other checks
 		end
 	end
@@ -311,42 +430,7 @@ function NB.do_checks(checks, action_target, loop_iteration)
 end
 
 
------------------------------------------
--- Returns the type of action:
--- spell, item, special
---
-function NB.validate_action(action_name, action_target)
 
-	action_name = string.lower(action_name)
-	action_target = string.lower(action_target)
-
-	-- just like action names, the target can be abbreviated, so we look it up to get the full version
-	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == action_target then action_target = v break end end
-	-- if we dont have an action target then use current if there is one
-	-- otherwise use player
-	if action_target == "" then -- if we have a blank target then set to target if we have one, or player if not
-		if UnitExists("target") then action_target = "target" else action_target = "player" end
-	end
-
-	for k,v in pairs(NB.SPECIALACTIONS) do 	-- deal with special actions
-
-		if k == action_name then
-			do return v, "special", action_target end
-			break
-		end
-	end
-
-	if NB.SPELLCACHE[action_name] then  -- deal with spell actions
-		return NB.SPELLCACHE[action_name], "spell", action_target
-	end
-
-	if NB.ITEMCACHE[action_name] then -- deal with item actions
-		return NB.ITEMCACHE[action_name], "item", action_target
-	end	
-
-	return "", "", ""
-
-end
 
 
 -----------------------------------------
@@ -399,7 +483,7 @@ end
 -- we put 2 entries in for each spell/item
 -- The full name, and the abbreviated version
 -- The abbrev version is the first letter of each
--- word if we have 2 or more words, or the first 3
+-- word if we have 2 or more words, or the first 4
 -- letters of the spell if only 1 word.
 function NB.putSpellIntoCache(spellOrItemName) 
 
@@ -416,7 +500,7 @@ function NB.putSpellIntoCache(spellOrItemName)
 		abbrev = gsub(abbrev, "(%a)%S*%s*", "%1")
 
 	else -- just one word, take first 4 characters
-		abbrev = gsub(spellOrItemName, "(%a)(%a)(%a).*", "%1%2%3")
+		abbrev = gsub(spellOrItemName, "(%a)(%a)(%a)(%a).*", "%1%2%3%4")
 	end
 
 	NB.SPELLCACHE[spellOrItemName] =  spellOrItemName 
@@ -460,7 +544,9 @@ function NB.getSpellFromCache(spell)
 	if NB.SPELLCACHE[spell] then
 		return NB.SPELLCACHE[spell]
     else
-        NB.error("Could not find spell: "..spell)
+        if spell ~= "Attack " then
+			NB.error("Could not find spell: "..spell) -- we use attack as a check to init the cache
+		end
         return false
     end
 
@@ -470,7 +556,7 @@ end
 -----------------------------------------
 -- Util: Returns the full name of a item form the cache
 --
-function NB.getItemFromCache(item) 
+function NB.getItemFromCache(item)
 	if not item then
 		NB.error("Internal error, no item passed to NB.getItemFromCache(item).")
         return false
