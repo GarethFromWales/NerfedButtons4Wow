@@ -139,7 +139,7 @@ end
 function NB.check_cooldown(unit, spellAndCooldown)
 
     local letters, numbers
-    gsub (spellAndCooldown, "^(%a+)(%d+)$", function (a, b) letters = a; numbers = b end)
+    gsub (spellAndCooldown, "^(%d+)(%a+)$", function (a, b)  numbers = a; letters = b end)
 
     -- look up spell
     local realSpellName = NB.getSpellFromCache(letters)

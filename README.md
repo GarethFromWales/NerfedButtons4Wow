@@ -23,6 +23,12 @@ The simplest NB would be one that simply attempts to cast a sequence of spells i
 /nb [Lightning Bolt:target]
 ```
 
+
+```
+/nb Flame Shock@target
+/nb Lightning Bolt@target
+```
+
 Flame Shock will be cast when it is off cooldown (every 6 seconds), Lightening Bold will be cast at all other times (as it doesn't have a cooldown). Nice!
 
 ### Adding some conditional intelligence
@@ -32,6 +38,14 @@ So far so good, but Flame Shock is a DoT that lasts 12 seconds; it seems wastefu
 ```
 /nb [Flame Shock:target][buff:target:!Flame Shock]
 /nb [Lightning Bolt:target]
+```
+
+```
+/nb Flame Shock @target [@target buff=Flame Shock]
+/nb Lightning Bolt @target
+
+/nb FS@t [@t b=FS, @t h<10%]
+/nb Lightning Bolt @target
 ```
 
 *Note: the buff check also checks for debuffs.*

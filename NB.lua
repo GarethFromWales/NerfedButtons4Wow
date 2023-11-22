@@ -169,7 +169,7 @@ function NB.split_action(parts)
 		action_target = "target"
 	end
 
-	return action, action_target
+	return string.lower(action), string.lower(action_target)
 
 end
 
@@ -238,7 +238,6 @@ function NB.validate_checks(parts)
 		-- expand it to the full string version we can use to call
 		-- the check function in Checks.lua
 		check_type = string.sub(check_type, 2, -2)
-		check_type = string.lower(check_type)
 		if NB.validate_check_name(check_type ~= "") then 
 			check_type = NB.validate_check_name(check_type) -- get NB API correct form of check name
 		else
@@ -251,7 +250,6 @@ function NB.validate_checks(parts)
 		-- understands.
 		local _, _, check_target, _ = string.find(k, "(%b::)")
 		check_target = string.sub(check_target, 2, -2)	
-		check_target = string.lower(check_target)
 		if NB.validate_check_target(check_target ~= "") then 
 			check_target = NB.validate_check_target(check_target) -- get WoW API correct form of target name
 		else
@@ -262,12 +260,11 @@ function NB.validate_checks(parts)
 		-- Get the value to test in the check
 		local _, _, check_value, _ = string.find(k, "(%b:])")
 		check_value = string.sub(check_value, 2, -2)
-		check_value = string.lower(check_value)
 		if not string.find(check_value, "^[<>=!]?[%w]+") then
 			NB.error("Error parsing check, execution terminated. \""..check_value.."\" is not a valid check value.")
 			return false
 		end
-
+		check_value = string.lower(check_value)
 		table.insert(checkTable, {check_type, check_target, check_value})
 	end
 	return checkTable
@@ -454,6 +451,11 @@ end
 --
 function NB.getSpellFromCache(spell) 
 
+	if not spell then
+		NB.error("Internal error, no spell passed to NB.getSpellFromCache(spell).")
+        return false
+	end
+
 	spell = string.lower(spell)
 	if NB.SPELLCACHE[spell] then
 		return NB.SPELLCACHE[spell]
@@ -469,7 +471,12 @@ end
 -- Util: Returns the full name of a item form the cache
 --
 function NB.getItemFromCache(item) 
+	if not item then
+		NB.error("Internal error, no item passed to NB.getItemFromCache(item).")
+        return false
+	end
 
+	item = string.lower(item)	
 	if NB.ITEMCACHE[item] then
 		return NB.ITEMCACHE[item]
     else
