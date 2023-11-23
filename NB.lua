@@ -439,9 +439,9 @@ function NB.do_checks(checks, action_target, loop_iteration)
 
 		local checkPass =  NB["check_"..cname](ctarget, coperator, cvalue)
 		if checkPass then 
-			NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] PASSED")
+			--NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] PASSED")
 		else
-			NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] FAILED")
+			--NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] FAILED")
 			return false -- a check has failed, no need to continur checking the other checks
 		end
 	end
