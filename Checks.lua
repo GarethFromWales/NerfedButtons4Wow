@@ -298,7 +298,6 @@ end
 -- Check: Cooldown
 -- cd@player>3Healing Touch
 function NB.check_cooldown(unit, operator, spellAndCooldown)
-
     if  operator ~= ">" and operator ~= "<" then
         NB.error("Invalid operator passed to cooldown check, only > and < are allowed.")
         return false

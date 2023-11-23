@@ -352,7 +352,7 @@ function NB.extract_and_validate_checks(checks)
 		-- 2. =
 		-- 3. Rejuvenation
 
-		gsub(checkString, '([^=!<>]+)([=!<>])([^=!<>]?)', function(checkAndTarget, checkOperator, checkValue) 
+		gsub(checkString, '([^=!<>]+)([=!<>])([^=!<>]*)', function(checkAndTarget, checkOperator, checkValue) 
 
 			-- bit of trimming
 			NB.trim(checkAndTarget)
@@ -438,6 +438,7 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		-- call the check function and return false if it fails
 
 		local checkPass =  NB["check_"..cname](ctarget, coperator, cvalue)
+
 		if checkPass then 
 			--NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] PASSED")
 		else
