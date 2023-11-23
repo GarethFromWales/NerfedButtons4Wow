@@ -2,16 +2,189 @@ local DruidManaLib = AceLibrary("DruidManaLib-1.0")
 if NB == nil then NB = {} end
 
 
+----------------------------------------
+-- Check: Combo
+--
+function NB.check_combo_points(unit, operator, test)
+
+    if  operator ~= ">" and operator ~= "<" and operator ~= "=" and operator ~= "!" then
+        NB.error("Invalid operator passed to power check, only > < ! = are allowed.")
+        return false
+    end        
+
+    -- get combo points
+    local actualCombo = GetComboPoints("player")
+
+    if operator == "=" then
+        if tonumber(actualCombo) == tonumber(test) then
+            return true
+        end
+    elseif operator == "<" then
+        if tonumber(actualCombo) < tonumber(test) then
+            return true
+        end
+    elseif operator == ">" then
+        if tonumber(actualCombo) > tonumber(test) then
+            return true
+        end
+    elseif operator == "!" then
+        if tonumber(actualCombo) ~= tonumber(test) then
+            return true
+        end
+    end
+     
+    return false
+
+end
+
+
+-----------------------------------------
+-- Check: Form
+--
+function NB.check_form(unit, operator, testForm)
+
+    if not testForm or not unit then return false; end
+    testForm = string.lower(testForm)
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to form check, only = and ! are allowed.")
+        return false
+    end 
+
+    -- get if of current form
+    local formId = 6
+    local actualForm = 0
+    for i=1, GetNumShapeshiftForms() do
+        _, _, actualForm = GetShapeshiftFormInfo(i);
+        if actualForm then
+            formId =  i;
+        end
+    end
+
+    -- get testForm API version
+    testForm = NB.validate_form_name(testForm)
+
+    local FORMS = {
+        [6] = "humanoid",
+        [1] = "bear" ,
+        [2] = "aquatic",
+        [3] = "cat",
+        [4] = "travel",
+        [5] = "moonkin"
+    }
+
+    if string.lower(testForm) == string.lower(FORMS[formId]) and operator == "=" then 
+        return true 
+    end
+
+    if string.lower(testForm) ~= string.lower(FORMS[formId]) and operator == "!" then 
+        return true 
+    end   
+
+    return false
+
+end
+
+
+-----------------------------------------
+-- Check: Power
+--
+function NB.check_power(unit, operator, powerTest)
+
+    if  operator ~= ">" and operator ~= "<" and operator ~= "=" and operator ~= "!" then
+        NB.error("Invalid operator passed to power check, only > < ! = are allowed.")
+        return false
+    end            
+
+    -- do we have a percentage at the end of the powerTest?
+    local num = gsub(powerTest,"(.-)%%.*", "%1")
+    local percent  = false
+    local actualPower = 0
+    if string.find(powerTest, "%%") then
+        actualPower=100*UnitMana(unit)/UnitManaMax(unit)
+    else
+        actualPower=UnitMana(unit)
+    end
+    
+    if operator == "=" then
+        if tonumber(actualPower) == tonumber(num) then
+            return true
+        end
+    elseif operator == "<" then
+        if tonumber(actualPower) < tonumber(num) then
+            return true
+        end
+    elseif operator == ">" then
+        if tonumber(actualPower) > tonumber(num) then
+            return true
+        end
+    elseif operator == "!" then
+        if tonumber(actualPower) ~= tonumber(num) then
+            return true
+        end        
+    end
+    
+    return false
+
+end
+
+
+
+-----------------------------------------
+-- Check: Health
+--
+function NB.check_health(unit, operator, healthTest)
+
+    if  operator ~= ">" and operator ~= "<" and operator ~= "=" and operator ~= "!" then
+        NB.error("Invalid operator passed to health check, only > < ! = are allowed.")
+        return false
+    end            
+
+    -- do we have a percentage at the end of the healthTest?
+    local num = gsub(healthTest,"(.-)%%.*", "%1")
+    local percent  = false
+    local actualHealth = 0
+    if string.find(healthTest, "%%") then
+        actualHealth=100*UnitHealth(unit)/UnitHealthMax(unit)
+    else
+        actualHealth=UnitHealth(unit)
+    end
+    
+    if operator == "=" then
+        if tonumber(actualHealth) == tonumber(num) then
+            return true
+        end
+    elseif operator == "<" then
+        if tonumber(actualHealth) < tonumber(num) then
+            return true
+        end
+    elseif operator == ">" then
+        if tonumber(actualHealth) > tonumber(num) then
+            return true
+        end
+    elseif operator == "!" then
+        if tonumber(actualHealth) ~= tonumber(num) then
+            return true
+        end        
+    end
+    
+    return false
+
+end
+
+
 -----------------------------------------
 -- Check: Buff
 --
 function NB.check_buff(unit, operator, buffName)
-    if not buffName or not unit then
-        return false;
+
+    -- validate the parameters
+    if not buffName or not unit then return false; end
+    buffName = string.lower(buffName)
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to buff check, only = and ! are allowed.")
+        return false
     end
 
-    buffName = string.lower(buffName)
-    
     -- look for buff
     local gotbuff = false
     local text = getglobal(NBTooltip:GetName().."TextLeft1");
@@ -42,7 +215,7 @@ function NB.check_buff(unit, operator, buffName)
     end    
 
     -- finally use the modifier to decide on true/false
-    if operator == "" and gotbuff == true then
+    if operator == "=" and gotbuff == true then
         return true
     end
     if operator == "!" and gotbuff == false then
@@ -56,19 +229,16 @@ end
 -----------------------------------------
 -- Check: Class
 --
-function NB.check_class(unit, className)
+function NB.check_class(unit, operator, className)
     if not className or not unit then
         return false;
     end
+    className = NB.validate_class_name(className)
 
-    -- get test modifier !
-    local modifier = string.sub(className, 1, 1)
-    local charList = {'!'}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = ""
-    else
-        className = string.sub(className, 2)
-    end
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to class check, only = and ! are allowed.")
+        return false
+    end    
 
     -- do we have a valid class?
     local apiClass = NB.validate_class_name(className)
@@ -77,19 +247,19 @@ function NB.check_class(unit, className)
         return false
     end
 
+    local gotClass = false
     local _, actual_class, _ = UnitClass(unit) 
-    if string.upper(className) == string.upper(actual_class) then
-        return true
+    if string.lower(className) == string.lower(actual_class) then
+        gotClass = true
     else
-        return false
+        gotClass = false
     end
 
-    -- finally use the modifier to decide on true/false
-    local test = false    
-    if modifier == "" and test == true then
+    -- finally use the operator to decide on true/false  
+    if operator == "=" and gotClass == true then
         return true
     end
-    if modifier == "!" and test == false then
+    if operator == "!" and gotClass == false then
         return true
     end    
     
@@ -99,23 +269,23 @@ end
 
 -----------------------------------------
 -- Check: Combat
---
-function NB.check_combat(unit, modifier)
+-- com@player=1
+-- com@target!1
+function NB.check_combat(unit, operator, value)
 
-    local charList = {'!'}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = ""
-    end
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to combat check, only = and ! are allowed.")
+        return false
+    end    
 
-    local test = nil
+    local test = false
     if UnitAffectingCombat(unit) then test = true end
 
-    -- finally use the modifier to decide on true/false
-    local test = false    
-    if modifier == "" and test == true then
+    -- finally use the operator to decide on true/false
+    if operator == "=" and test == true then
         return true
     end
-    if modifier == "!" and test == false then
+    if operator == "!" and test == false then
         return true
     end   
 
@@ -126,14 +296,19 @@ end
 
 -----------------------------------------
 -- Check: Cooldown
--- e.g. HT30 (only pass if there has been 30 secodns since HT was last cast)
-function NB.check_cooldown(unit, spellAndCooldown)
+-- cd@player>3Healing Touch
+function NB.check_cooldown(unit, operator, spellAndCooldown)
+
+    if  operator ~= ">" and operator ~= "<" then
+        NB.error("Invalid operator passed to cooldown check, only > and < are allowed.")
+        return false
+    end        
 
     local letters, numbers
     gsub (spellAndCooldown, "^(%d+)(%a+)$", function (a, b)  numbers = a; letters = b end)
 
     -- look up spell
-    local realSpellName = NB.getSpellFromCache(letters)
+    local realSpellName = NB.getSpellFromCache(string.lower(letters))
 
     if not NB.cooldowns[realSpellName] then
 
@@ -148,57 +323,18 @@ function NB.check_cooldown(unit, spellAndCooldown)
 
 end
 
------------------------------------------
--- Check: Combo
---
-function NB.check_combo_points(unit, test)
-
-    -- get combo points
-    local actualCombo = GetComboPoints("player")
-
-    -- get test modifier > < =
-    local modifier = string.sub(test, 1, 1)
-    local charList = {'<', '>', '='}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = "="
-    end
-    test = string.sub(test, 2) 
-
-    if modifier == "=" then
-        if tonumber(actualCombo) == tonumber(test) then
-            return true
-        end
-    elseif modifier == "<" then
-        if tonumber(actualCombo) < tonumber(test) then
-            return true
-        end
-    elseif modifier == ">" then
-        if tonumber(actualCombo) > tonumber(test) then
-            return true
-        end
-    end
-     
-    return false
-
-end
-
-
 
 
 -----------------------------------------
 -- Check: Con(ditions)
 --
-function NB.check_condition(unit, typeCheck)
+function NB.check_condition(unit, operator, typeCheck)
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to condition check, only = and ! are allowed.")
+        return false
+    end    
 
-    -- get test modifier !
-    local modifier = string.sub(typeCheck, 1, 1)
-    local charList = {'!'}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = ""
-    else
-        typeCheck = string.sub(typeCheck, 2)
-    end     
-    typeCheck = NB.CONDITIONS[typeCheck]
+    typeCheck = NB.validate_condition_name(typeCheck)
     if not typeCheck then
         NB.error("Invalid condition type passed: \""..typeCheck.."\".")
     end
@@ -208,7 +344,7 @@ function NB.check_condition(unit, typeCheck)
         if typeHas then
             typeHas = string.lower(typeHas)
             if typeHas == typeCheck then
-                if modifier == "" then
+                if operator == "=" then
                     return true
                 end
             end
@@ -220,88 +356,9 @@ function NB.check_condition(unit, typeCheck)
 end
 
 
------------------------------------------
--- Check: Form
---
-function NB.check_form(unit, testForm)
-
-    -- get if of current form
-    local formId = 6
-    local actualForm = 0
-    for i=1, GetNumShapeshiftForms() do
-        _, _, actualForm = GetShapeshiftFormInfo(i);
-        if actualForm then
-            formId =  i;
-        end
-    end
-
-    -- get test modifier !
-    local modifier = string.sub(testForm, 1, 1)
-    local charList = {'!'}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = ""
-    else
-        testForm = string.sub(testForm, 2)
-    end
-
-    -- get testForm API version
-    testForm = NB.VALIDDRUIDFORMS[testForm]
-
-    local FORMS = {
-        [6] = "humanoid",
-        [1] = "bear" ,
-        [2] = "aquatic",
-        [3] = "cat",
-        [4] = "travel",
-        [5] = "moonkin"
-    }
-
-    if testForm == FORMS[formId] and modifier=="" then 
-        return true 
-    end
-
-    if testForm ~= FORMS[formId] and modifier=="!" then 
-        return true 
-    end   
-
-    return false
-
-end
 
 
------------------------------------------
--- Check: Health
---
-function NB.check_health(unit, healthTest)
 
-    -- get health % of unit
-    local actualHealth=100*UnitHealth(unit)/UnitHealthMax(unit)
-
-    -- get test modifier > < =
-    local modifier = string.sub(healthTest, 1, 1)
-    local charList = {'<', '>', '='}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = "="
-    end
-    healthTest = string.sub(healthTest, 2)
-    
-    if modifier == "=" then
-        if tonumber(actualHealth) == tonumber(healthTest) then
-            return true
-        end
-    elseif modifier == "<" then
-        if tonumber(actualHealth) < tonumber(healthTest) then
-            return true
-        end
-    elseif modifier == ">" then
-        if tonumber(actualHealth) > tonumber(healthTest) then
-            return true
-        end
-    end
-    
-    return false
-
-end
 
 
 -----------------------------------------
@@ -329,42 +386,6 @@ function NB.check_mana(unit, powerTest)
     return false
 
 end
-
-
------------------------------------------
--- Check: Power
---
-function NB.check_power(unit, powerTest)
-
-    -- get health % of unit
-    local actualPower=100*UnitMana(unit)/UnitManaMax(unit)
-
-    -- get test modifier > < =
-    local modifier = string.sub(powerTest, 1, 1)
-    local charList = {'<', '>', '='}
-    if not NB.isCharInList(modifier, charList) then
-        modifier = "="
-    end
-    powerTest = string.sub(powerTest, 2)
-    
-    if modifier == "=" then
-        if tonumber(actualPower) == tonumber(powerTest) then
-            return true
-        end
-    elseif modifier == "<" then
-        if tonumber(actualPower) < tonumber(powerTest) then
-            return true
-        end
-    elseif modifier == ">" then
-        if tonumber(actualPower) > tonumber(powerTest) then
-            return true
-        end
-    end
-    
-    return false
-
-end
-
 
 
 

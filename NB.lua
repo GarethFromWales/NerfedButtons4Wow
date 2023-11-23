@@ -85,7 +85,7 @@ function NB.slash_handler(msg)
 			Next up, lets parse the checks... 	]]--
 
 	local checkString = inside_brackets;
-	NB.debug("NB.slash_handler - Check string: "..inside_brackets)
+	--NB.debug("NB.slash_handler - Check string: "..inside_brackets)
 	local checks = {}
 	gsub(inside_brackets, '([^,]+)', function(c) c = NB.trim(c) table.insert(checks, c) end)
 
@@ -175,8 +175,8 @@ function NB.extract_and_validate_action(orig_action_name, orig_action_target)
 	local action_name = string.lower(orig_action_name)
 	local action_target = string.lower(orig_action_target)
 
-	NB.debug("va 1:"..action_name)
-	NB.debug("va 1:"..action_target)
+	--NB.debug("va 1:"..action_name)
+	--NB.debug("va 1:"..action_target)
 
 	-- just like action names, the target can be abbreviated, so we look it up to get the full version
 	for k,v in pairs(NB.VALIDACTIONTARGETS) do if k == action_target then action_target = v break end end
@@ -190,16 +190,16 @@ function NB.extract_and_validate_action(orig_action_name, orig_action_target)
 		return "", "", ""
 	end
 
-	NB.debug("va 2:"..action_name)
-	NB.debug("va 2:"..action_target)	
+	--NB.debug("va 2:"..action_name)
+	--NB.debug("va 2:"..action_target)	
 
 	for k,v in pairs(NB.SPECIALACTIONS) do 	-- deal with special actions
 		if k == action_name then
 			action_name = v
 			local action_type = "special"
-			NB.debug("va 3.1:"..action_name)
-			NB.debug("va 3.1:"..action_type)
-			NB.debug("va 3.1:"..action_target)
+			--NB.debug("va 3.1:"..action_name)
+			--NB.debug("va 3.1:"..action_type)
+			--NB.debug("va 3.1:"..action_target)
 			do return action_name, "special", action_target end
 			break
 		end
@@ -208,18 +208,18 @@ function NB.extract_and_validate_action(orig_action_name, orig_action_target)
 	if NB.SPELLCACHE[action_name] then  -- deal with spell actions
 		action_name = NB.SPELLCACHE[action_name]
 		local action_type = "spell"
-		NB.debug("va 3.2:"..action_name)
-		NB.debug("va 3.2:"..action_type)
-		NB.debug("va 3.2:"..action_target)		
+		--NB.debug("va 3.2:"..action_name)
+		--NB.debug("va 3.2:"..action_type)
+		--NB.debug("va 3.2:"..action_target)		
 		return action_name, "spell", action_target
 	end
 
 	if NB.ITEMCACHE[action_name] then -- deal with item actions
 		action_name = NB.ITEMCACHE[action_name]
 		local action_type = "item"
-		NB.debug("va 3.3:"..action_name)
-		NB.debug("va 3.3:"..action_type)
-		NB.debug("va 3.3:"..action_target)				
+		--NB.debug("va 3.3:"..action_name)
+		--NB.debug("va 3.3:"..action_type)
+		--NB.debug("va 3.3:"..action_target)				
 		return action_name, "item", action_target
 	end	
 
@@ -285,6 +285,31 @@ function NB.validate_check_name(check)
 end
 
 
+
+-----------------------------------------
+-- Returns the NP API correct form
+--
+function NB.validate_form_name(form)
+
+	local api_form = ""
+	for k,v in pairs(NB.VALIDDRUIDFORMS) do if k == form then api_form = v break end end
+	return string.lower(api_form)
+
+end
+
+
+-----------------------------------------
+-- Returns the NP API correct condition
+--
+function NB.validate_condition_name(condition)
+
+	local api_condition = ""
+	for k,v in pairs(NB.VALIDCONDITIONS) do if k == condition then api_condition = v break end end
+	return string.lower(api_condition)
+
+end
+
+
 -----------------------------------------
 -- Returns the WoW API correct class
 --
@@ -292,7 +317,7 @@ function NB.validate_class_name(class)
 
 	local api_class = ""
 	for k,v in pairs(NB.VALIDCLASSES) do if k == class then api_class = v break end end
-	return api_class
+	return string.lower(api_class)
 
 end
 
@@ -318,7 +343,7 @@ function NB.extract_and_validate_checks(checks)
 
 	for i, v in ipairs(checks) do
 		local checkString = v
-		NB.debug("NB.extract_and_validate_checks - Check item: "..checkString)
+		--NB.debug("NB.extract_and_validate_checks - Check item: "..checkString)
 
 		-- checks are formatted as: [buff@player=Rejuvenation]
 		-- ampersand is optional so split on the following modifiers !=><
@@ -327,7 +352,7 @@ function NB.extract_and_validate_checks(checks)
 		-- 2. =
 		-- 3. Rejuvenation
 
-		gsub(checkString, '([^=!<>]+)([=!<>])([^=!<>]+)', function(checkAndTarget, checkOperator, checkValue) 
+		gsub(checkString, '([^=!<>]+)([=!<>])([^=!<>]?)', function(checkAndTarget, checkOperator, checkValue) 
 
 			-- bit of trimming
 			NB.trim(checkAndTarget)
@@ -370,7 +395,7 @@ function NB.extract_and_validate_checks(checks)
 			end
 
 			-- validate the value. This we cannot do as it depends on the check. Value validation is done inside the check function.
-			NB.debug("NB.extract_and_validate_checks - Split Check item: "..check_name.."   "..check_target.."   "..checkOperator.."   "..checkValue)
+			--NB.debug("NB.extract_and_validate_checks - Split Check item: "..check_name.."   "..check_target.."   "..checkOperator.."   "..checkValue)
 			table.insert(validatedChecks, {name = check_name, target = check_target, operator = checkOperator, value = checkValue })
 
 		end)
@@ -395,18 +420,13 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		local coperator = k["operator"]
 		local cvalue = k["value"]
 
-		NB.print(action_target)
-		NB.print(loop_iteration)
-		NB.print(cname)
-		NB.print(ctarget)
-		NB.print(coperator)
-		NB.print(cvalue)
-
+		-- if we have a smart action target then update the check target
 		if ctarget == "smart" then
 			ctarget = action_target..loop_iteration;
 			if action_target == "player" then ctarget="player" end
 		end
 		
+		-- we may end up we not target, if so, fail the check
 		if not UnitExists(ctarget) then return false end
 
 		-- check the check function actually exists
@@ -416,11 +436,12 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		end
 
 		-- call the check function and return false if it fails
+
 		local checkPass =  NB["check_"..cname](ctarget, coperator, cvalue)
 		if checkPass then 
-			NB.print("Check: ["..cname..":"..ctarget..":"..cvalue.."] PASSED")
+			NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] PASSED")
 		else
-			NB.print("Check: ["..cname..":"..ctarget..":"..cvalue.."] FAILED")
+			NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] FAILED")
 			return false -- a check has failed, no need to continur checking the other checks
 		end
 	end
@@ -428,9 +449,6 @@ function NB.do_checks(checks, action_target, loop_iteration)
 	return true
 
 end
-
-
-
 
 
 -----------------------------------------

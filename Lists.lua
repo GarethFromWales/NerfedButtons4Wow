@@ -25,27 +25,32 @@ NB.SPECIALACTIONS = {
 
 -- list of valid checks, long and short forms
 NB.VALIDCHECKS = {
+	["b"] = "buff",
+	["buff"] = "buff",
+	["cl"] = "class",
+	["class"] = "class",
+	["d"] = "buff",
+	["debuff"] = "buff",
 	["h"] = "health",
 	["health"] = "health",
 	["p"] = "power",
-	["pow"] = "power",	
-	["power"] = "power", 
-	["m"] = "mana",	
-	["mana"] = "mana", 	
-	["c"] = "condition", 
-	["con"] = "condition", 
-	["condition"] = "condition",
-	["cd"] = "cooldown", 	
-	["b"] = "buff",
-	["buff"] = "buff",
-	["d"] = "buff",
-	["debuff"] = "buff",
+	["power"] = "power",
+	["f"] = "form",
+	["form"] = "form",
+	["combo"] = "combo_points",
+	["cp"] = "combo_points",
 	["com"] = "combat",
 	["combat"] = "combat",
-	["f"] = "form",
-	["form"] = "form",	
-	["combo"] = "combo_points",
-	["cp"] = "combo_points"		
+	["cd"] = "cooldown", 
+	["cooldown"] = "cooldown",
+	["con"] = "condition", 
+	["condition"] = "condition"
+
+	--[[
+	["m"] = "mana",	
+	["mana"] = "mana", 	
+,]]--
+
 }
 
 -- list of valid targets, long and short forms
@@ -121,7 +126,7 @@ NB.VALIDDRUIDFORMS = {
 };
 
 
-NB.CONDITIONS = {
+NB.VALIDCONDITIONS = {
 	["c"] = "curse",
 	["curse"] = "curse",
 	["p"] = "poison",
