@@ -12,7 +12,7 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 
 ## Installation
 
-1. Disable SuperMacros addon if you have it installed. Super Macros has lots of issues with caaching of macros which make it really difficult to work out what macro code you are actually running at any time. Best to disable it if you plan to us NerfedButtons.
+1. Disable SuperMacros addon if you have it installed. SuperMacros has an issue with caaching of macros which make it really difficult to work out what macro code you are actually running at any time. Best to disable it if you plan to us NerfedButtons, at least for the time being until I can work out a fix.
 1. Download the latest version from https://github.com/GarethFromWales/NerfedButtons4Wow/archive/refs/tags/v1.0.zip
 1. Open the zip file and drag the folder NerfedButtons4Wow-1.X to your TurtleWow/Interface/Addons folder
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
@@ -22,6 +22,7 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 
 1. Only spells supported right now, items will be added in the next minor release
 1. Smart targetting not working 100%, also next release.
+1. Doesn't play nicely with SuperMacros.
 
 ## Your first few NerfedButtons
 
