@@ -20,7 +20,9 @@ NB.SPECIALACTIONS = {
 	["sc"] = "stopcast",
 	["stopcast"] = "stopcast",
 	["sa"] = "stopattack",
-	["stopattack"] = "stopattack"
+	["stopattack"] = "stopattack",
+	["ps"] = "powershift",	
+	["powershift"] = "powershift"
 }
 
 -- list of valid checks, long and short forms

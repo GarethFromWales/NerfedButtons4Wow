@@ -40,6 +40,14 @@
         "GetComboPoints",
         "GetNumShapeshiftForms",
         "time",
-        "BOOKTYPE_SPELL"
+        "BOOKTYPE_SPELL",
+        "GetTime",
+        "UIErrorsFrame",
+        "CastShapeshiftForm",
+        "GetContainerNumSlots",
+        "GetContainerItemLink",
+        "NUM_BAG_SLOTS",
+        "GetContainerItemCooldown",
+        "UseContainerItem"
     ]
 }
