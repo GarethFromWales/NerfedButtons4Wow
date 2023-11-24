@@ -111,7 +111,7 @@ Turtle WoW has more than its fair share of Paladins, none of whome chose the cla
 ```
 /run if nil then CastSpellByName("Flame Shock") end
 /nb Purge@target [buff@target=Divine Shield]
-/nb Purge:target [buff@target=Blessing of Protection]
+/nb Purge@target [buff@target=Blessing of Protection]
 /nb Flame Shock@target [debuff@target!Flame Shock]
 /nb Earth Shock@target
 /nb Lightning Bolt@target
