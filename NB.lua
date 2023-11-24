@@ -193,6 +193,8 @@ function NB.extract_and_validate_action(orig_action_name, orig_action_target)
 	--NB.debug("va 2:"..action_name)
 	--NB.debug("va 2:"..action_target)	
 
+	-- local action_rank = gsub(action_name, "%D+", "")
+
 	for k,v in pairs(NB.SPECIALACTIONS) do 	-- deal with special actions
 		if k == action_name then
 			action_name = v

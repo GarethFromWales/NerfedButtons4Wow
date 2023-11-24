@@ -21,8 +21,12 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 ## Limitations
 
 1. Only spells supported right now, items will be added in the next minor release
-1. Smart targetting not working 100%, also next release.
 1. Doesn't play nicely with SuperMacros.
+
+## Latest News - version 1.1
+
+1. Syntax for actions and checks changed significantly between alpha and v1 code. Read this doc and update your macros accordingly.
+1. Smart targetting now working. Added example to the Druids section at the end of the documenation.
 
 ## Your first few NerfedButtons
 
@@ -395,6 +399,21 @@ I haven't found a workaround this this limitation as yet, maybe there isn't one.
 ## General
 
 ## Druid
+
+### Group Care
+
+Single button macro to decurse, heal, buff and everything for your group. Can be modified to raid very easily.
+
+```
+/run if nil then CastSpellByName("Rejuvenation") end
+/nb ap@g [b@s!Abolish Poison,con@s=p]
+/nb rc@g [con@s=c]
+/nb ht@g [h@s<60%]
+/nb Regr@g [b@s!Regrowth,h@p<80%]
+/nb Reju@g [b@s!Rejuvenation]
+/nb thor@g [b@s!Thorns]
+/nb motw@g [b@s!mark]
+```
 
 ## Mage
 
