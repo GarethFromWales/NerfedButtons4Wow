@@ -197,6 +197,10 @@ function NB.check_buff(unit, operator, buffName)
         --buffName = string.gsub(buffName, "_", " ");
 		if ( name and string.find(name, buffName) ) then
 			gotbuff =  true;
+        elseif name and NB.SPELLCACHE[buffName] and string.lower(NB.SPELLCACHE[buffName]) == string.lower(name) then
+			gotbuff =  true;
+        elseif name and NB.ITEMCACHE[buffName] and string.lower(NB.ITEMCACHE[buffName]) == string.lower(name) then
+			gotbuff =  true;            
 		end
     end
 
@@ -211,6 +215,10 @@ function NB.check_buff(unit, operator, buffName)
         --buffName = string.gsub(buffName, "_", " ");
 		if ( name and string.find(name, buffName) ) then
 			gotbuff =  true;
+        elseif name and NB.SPELLCACHE[buffName] and string.lower(NB.SPELLCACHE[buffName]) == string.lower(name) then
+			gotbuff =  true;
+        elseif name and NB.ITEMCACHE[buffName] and string.lower(NB.ITEMCACHE[buffName]) == string.lower(name) then
+			gotbuff =  true;            
 		end
     end    
 
