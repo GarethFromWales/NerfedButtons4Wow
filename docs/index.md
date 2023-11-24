@@ -10,6 +10,13 @@ if any of the above apply, NerfedButtons may be what you are looking for!
 
 Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exercise of a few brain cells, you have been warned...
 
+## Installation
+
+1. Download the latest version from https://github.com/GarethFromWales/NerfedButtons4Wow/archive/refs/tags/v1.0.zip
+1. Open the zip file and drag the folder NerfedButtons4Wow-1.X to your TurtleWow/Interface/Addons folder
+1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
+1. Restart Turtle WoW
+
 ## Your first few NerfedButtons
 
 ### A simple sequence
