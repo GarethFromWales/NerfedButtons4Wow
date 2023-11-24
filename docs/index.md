@@ -18,6 +18,11 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
 1. Restart Turtle WoW
 
+## Limitations
+
+1. Only spells supported right now, items will be added in the next minor release
+1. Smart targetting not working 100%, also next release.
+
 ## Your first few NerfedButtons
 
 ### A simple sequence
