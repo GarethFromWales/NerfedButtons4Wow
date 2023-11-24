@@ -252,7 +252,7 @@ If you have multiple checks for a single action, seperate them with a comma```,`
 
 ## Actions
 
-### Action_Name
+### <Action_Name>
 
 #### Spells, abilities and items
 
@@ -270,16 +270,16 @@ Actions are either spelled out in full or abbreviated:
 
   There are also a number of ```special``` NB actions. These include (shorthand in brackets):
 
-  * cancel (c) - cancels a buff on the player. ```/nb cancel@Enrage```
-  * target (t) - targets a unit. ```/nb target@raid10```
-  * targetenemy (te) - targets nearest enemy. ```/nb targetenemy```
-  * targetenemyplayer (tep) - targets nearest enemy player. ```/nb targetenemyplayer```
-  * targetfriend (tf) - targets nearest friendly. ```/nb targetfriend```
-  * targetlasttarget (tlt) - targets your last target. ```/nb targetlasttarget```
-  * stop (s) - stops attacking and casting. ```/nb stop```
-  * stopcast (sc) - stops attacking and casting. ```/nb stopcast```    
-  * stopattack (sa) - stops attacking and casting. ```/nb stopattack```
-  * powershift (ps) - powershift and optionally use consumable. ```/nb powershift``` or ```/nb powershift@Healing Potion``` 
+  * `cancel` (`c`) - cancels a buff on the player. ```/nb cancel@Enrage```
+  * `target` (`t`) - targets a unit. ```/nb target@raid10```
+  * `targetenemy` (`te`) - targets nearest enemy. ```/nb targetenemy```
+  * `targetenemyplayer` (`tep`) - targets nearest enemy player. ```/nb targetenemyplayer```
+  * `targetfriend` (`tf`) - targets nearest friendly. ```/nb targetfriend```
+  * `targetlasttarget` (`tlt`) - targets your last target. ```/nb targetlasttarget```
+  * `stop` (`s`) - stops attacking and casting. ```/nb stop```
+  * `stopcast` (`sc`) - stops attacking and casting. ```/nb stopcast```    
+  * `stopattack` (`sa`) - stops attacking and casting. ```/nb stopattack```
+  * `powershift` (`ps`) - powershift and optionally use consumable. ```/nb powershift``` or ```/nb powershift@Healing Potion``` 
 
     Each of the special actions can be combined with checks. For example:
 
@@ -291,25 +291,28 @@ Actions are either spelled out in full or abbreviated:
 
     Will cast Enrage and then cancel it so you get the initial benefit but remove it so as not to suffer the detrimental after effects.
 
-### Action_Target
+### <Action_Target>
+
+#### Simple action targets
 
 * ```<action_target>``` is the target for the action. Basic values include:
-  * `player`
-  * `target`
-  * TODO: `focus`  
-  * TODO: `targetoftarget`
+  * `player` (`p`) - cast on yourself
+  * `target` (`t`) - cast on your target
+  * `focus`  (`f`) - cast on your focus target
 
   ```
   /nb [Rejuvenation:focus][health:focus:<90]
   /nb [Wrath:target]
   ```
 
+#### Smart action targets
+
   In addition there are special ```smart``` targets that are calculated at runtime based on the conditions associated with a NB. These smart targets include:
-  * `group` (only targets the 5 party members even in a raid)
-  * `raid` (will target any raid member or party member if not in a raid)
-  * TODO: `tanks`
-  * TODO: `dps`
-  * TODO: `healers`
+  
+  * `group` (`g`) - cast on the first member of your group that matches your checks
+  * `raid` (`r`) - cast on the first member of your raid that matches your checks
+
+  Note: group and raid will cause NB to scan all the members and perform checks again everyone with a single button press. It's a  bit like magic!
 
   always use the word smart (or 's') for the target of your checks when using smart targetting:
 
@@ -322,47 +325,34 @@ Actions are either spelled out in full or abbreviated:
 
 NB comes with a variety of useful checks but more will be developed over time. Here is the current list:
 
-#### Check_Type
+### <Check_Type>
 
-* ```<check_type>``` is the type of check you want to perform. Valid values include:
-  * `b` or `buff` (this also checks for debuffs)
-    * ```[buff:player:!Mark Of The Wild]``` 
-  * `h` or `health` (checks if the health is above, below, equal to a percentage of the maximum)
-    * ```[health:player:<80]```   
-  * TODO: `rh` or `rawhealth` (checks if the health is above, below, equal to a specific value)
-    * ```[rawhealth:player:<520]```    
-  * `p` or `power` 
-    * ```[power:player:>15]```  
-  * TODO: `rp` or `rpower` (checks if the power is above, below, equal to a specific value)
-    * ```[rawpower:player:<750]```    
-  * TODO: `m` or `mana` (druid specific check that can be used in forms to check mana percentage)
-      * ```[mana:player:>130]```    
-  * TODO: `rm` or `rawmana` (druid specific check that can be used in forms to check mana value)
-      * ```[rawmana:player:>150]```    
-  * `con` or `condition` (short for condition, can be (c)curse, (p)poison, (m)magic, (d)disease)
-    * ```[con:player:poison]```
-  * `cla` or `class` (checks class of target)
-  * TODO: `role` (checks role of target)
-  * TODO: `equip` (checks if a piece of equipment is equipped)
-  * TODO: `bag` (checks if an item is in a bag)
+Note that many of the checks require a check_target, this can be same or different to the arction_target.
 
-  There are also a number of special ```<checktype>``` that are only valid with ```smart``` targets. These include:
-  * TODO: `lhealth` (lowest health)
-  * TODO: `lmana` (lowest mana)
+ * `buff` (`b`) - check for a buff or debuff on the check_target.
+ * `debuff` (`d`) - same as buff, check for a buff or debuff on the check_target.
+ * `class` (`cl`) - checks the class of the check_target.
+ * `health`(`h`) - checks the health of the check_target. Append % to the value to check percentage of health.
+ * `power`(`p`) - checks the power (mana/rage/energy) of the check_target. Append % to the value to check percentage of power.
+ * `form`(`f`) - checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
+ * `combo`(`cp`) - checks the combo points of the check_target. Unlike Classic, in Vanilla you lose combo points on your target if you switch target, therefore the check_target should always be `target` for this check and nothing else makes sense.
+ * `combat`(`com`) - checks whether the check_target is in combat.
+ * `cooldown`(`cd`) - checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
+ * `power`(`p`) - checks the power (mana/rage/energy) of the check_target.
+ * `condition`(`con`) - checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
 
-#### Check_Target
+### <Check_Target>
 
-  * `player`
-  * `target`
-  * TODO: `focus`  
-  * TODO: `targetoftarget`
+  * `player` (`p`) - you the player.
+  * `target` (`t`) - your current target.
+  * `smart` (`s`) - a smart target (used when the action target is set to group or raid).
 
-#### Check_Value
+### <Check_Value>
 
-The value associated with the check to test against.
+The value associated with the check to test against. This is check specific in most cases.
 
 
-### History (War, RIFT, Age of Conan)
+# History of NerfedButtons (War, RIFT, Age of Conan)
 
 NerfedButtons (or NB for short) was originally written for Warhammer Online and had a love/hate relashionship with players and developers alike. Some claimed it dumbed down the game too much, whilst others loved the freedom it gave them to simplify overly complex keybindings so they could focus on gameplay. NB only did what was allowable by WAR API and as such was not against the TOS.
 
@@ -373,33 +363,38 @@ Much later, versions were written for Rift and Age of Conan which offered simila
 Warhammer Online: Return of Reckoning brought about a revival of WAR and the controversy of NB. Ultimately the WAR developers found a way to limit the API and make NB unuseable in its current form. The developer of NB decided to adhere to the decision and not work on any workarounds, a death knell for the addon.
 
 ### Vanilla WoW (e.g. Turle WoW)
-
-Vanilla WoW provides a powerful API that can be called by macros and addons, much more complete that Classic or Retail. NB for Vanilla WoW makes a lot of sense as like the original WAR implimentation, only does what the API allows, and in fact there are already widely used other addons (e.g. Super Macros) that provide very similar capabilities to NB but can require knowledge knowledge of LUA. NB is aimed at everyone, no need to understand the LUA scripting language to make complex macros.
+Vanilla WoW provides a powerful API that can be called by macros and addons, much more complete that Classic or Retail. NB for Vanilla WoW makes a lot of sense as like the original WAR implimentation, only does what the API allows, and in fact there are already widely used other addons (e.g. Super Macros) that provide very similar capabilities to NB but require knowledge knowledge of LUA. NB will never be as powerful as writing your own LUA code, but does level the playing field somewhat for those who don't.
 
 ## Known Limitations
 
-Unfortunately unlike Classic and Retail WoW, the icon associated with a button is fixed, therefore you should consider which ability icon in your sequence makes sense.
+Unfortunately unlike Classic and Retail WoW, the icon associated with a button is fixed, therefore you need to prefix all your NB with the following:
+
+```/run if nil then CastSpellByName("SPELL NAME") end```
+
+You should consider which ability icon in your NB makes sense to you as it is this ability that will be shown on the button and will be updated to show out of range etc...
+
+I haven't found a workaround this this limitation as yet, maybe there isn't one...
 
 
-## Lots of Examples :)
+# Lots of Examples :)
 
-### General
+## General
 
-### Druid
+## Druid
 
-### Mage
+## Mage
 
-### Paladin
+## Paladin
 
-### Priest
+## Priest
 
-### Rogue
+## Rogue
 
-### Shaman
+## Shaman
 
-### Warlock
+## Warlock
 
-### Warrior
+## Warrior
 
 
 
