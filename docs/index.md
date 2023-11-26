@@ -289,6 +289,7 @@ Actions are either spelled out in full or abbreviated:
 
 * Mark of the Wild => motw
 * Thorns => thor
+* ghp => Greater Healing Potion
 
 1. If the spell is a single word long, then just provide the first 4 letters.
 2. If the spell is more than a single word, provide the first letter of each word.
