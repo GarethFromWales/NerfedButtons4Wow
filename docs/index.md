@@ -348,22 +348,54 @@ NB comes with a variety of useful checks but more will be developed over time. H
 
 Note that many of the checks require a check_target, this can be same or different to the arction_target.
 
+##### `buff` (`b`) - Buff
+ * check for a buff or debuff on the check_target.
  * `buff` (`b`) - check for a buff or debuff on the check_target.
- * `debuff` (`d`) - same as buff, check for a buff or debuff on the check_target.
- * `class` (`cl`) - checks the class of the check_target.
- * `health`(`h`) - checks the health of the check_target. Append % to the value to check percentage of health.
+
+##### `debuff` (`d`) - Debuff
+ * Alias for buff, check for a buff or debuff on the check_target.
+
+##### `class` (`cl`) - Class
+ * checks the class of the check_target.
+
+##### `health`(`h`) - Health
+ * checks the health of the check_target. Append % to the value to check percentage of health.
+
+##### `power`(`p`) - Power
  * `power`(`p`) - checks the power (mana/rage/energy) of the check_target. Append % to the value to check percentage of power.
- * `form`(`f`) - checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
- * `combo`(`cp`) - checks the combo points of the check_target. Unlike Classic, in Vanilla you lose combo points on your target if you switch target, therefore the check_target should always be `target` for this check and nothing else makes sense.
- * `combat`(`com`) - checks whether the check_target is in combat.
- * `cooldown`(`cd`) - checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
- * `power`(`p`) - checks the power (mana/rage/energy) of the check_target.
- * `condition`(`con`) - checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
- * `modifier`(`mod`) - checks if `shift`(`s`)/`alt`(`a`)/`ctrl`(`c`) are held down `/nb Regrowth@player [mod@player=shift]`
+
+##### `form`(`f`) - Form
+ * checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
+
+##### `combo`(`cp`) - Combo
+ * checks the combo points of the check_target. Unlike Classic, in Vanilla you lose combo points on your target if you switch target, therefore the check_target should always be `target` for this check and nothing else makes sense.
+
+##### `combat`(`com`)  - Combat
+ * - checks whether the check_target is in combat.
+  ```
+  /nb Rejuvenation@player [combat@player=1]
+  /nb Regrowth@player [combat@player!1]
+   ```
+
+##### `cooldown`(`cd`)  - Cooldown
+ * checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
+
+##### `condition`(`con`) - Condition
+ * checks if the check_target is suffering from any conditions (poison/curse/magic/disease):
+   ```
+   /nb Cure Poison@target [con@target=poison]
+   ```
+
+##### `modifier`(`mod`) - Modifier Key
+ * checks if `shift`(`s`)/`alt`(`a`)/`ctrl`(`c`) are held down: 
+   ```
+   /nb Regrowth@target [mod!shift]
+   /nb Regrowth@player [mod=shift]
+   ```
 
 ### <Check_Target>
 
-  * `player` (`p`) - you the player.
+  * `player` (`p`) - you the player. Defaults to player if you don't pass a target.
   * `target` (`t`) - your current target.
   * `smart` (`s`) - a smart target (used when the action target is set to group or raid).
 
@@ -403,13 +435,13 @@ I haven't found a workaround this this limitation as yet, maybe there isn't one.
 ### Cast on target or self if shift is held down.
 
 ```
-/nb Regrowth@target [mod@player!shift]
-/nb Regrowth@player [mod@player=shift]
+/nb Regrowth@target [mod!shift]
+/nb Regrowth@player [mod=shift]
 ```
 shorthand:
 ```
-/nb regr@t [mod@p!s]
-/nb regr@t [mod@p=s]
+/nb regr@t [mod!s]
+/nb regr@t [mod=s]
 ```
 
 
