@@ -18,15 +18,16 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
 1. Restart Turtle WoW
 
-## Limitations
+## Issues and Limitations
 
 1. Only spells supported right now, items will be added in the next minor release
 1. Doesn't play nicely with SuperMacros.
+1. Smart targetting partly working, still needs work. Added example to the Druids section at the end of the documenation.
 
 ## Latest News - version 1.1
 
-1. Syntax for actions and checks changed significantly between alpha and v1 code. Read this doc and update your macros accordingly.
-1. Smart targetting now working. Added example to the Druids section at the end of the documenation.
+1. Syntax for actions and checks changed significantly between alpha and version 1 code. Read this doc and update your macros accordingly.
+1. Added new modifier keys check (shift/alt/delete) `/nb Regrowth@player [mod@player=shift]`
 
 ## Your first few NerfedButtons
 
@@ -281,7 +282,7 @@ Actions are either spelled out in full or abbreviated:
 * Mark of the Wild => motw
 * Thorns => thor
 
-1. If the spell is a single word long, then just provide the first 34 letters.
+1. If the spell is a single word long, then just provide the first 4 letters.
 2. If the spell is more than a single word, provide the first letter of each word.
 
 #### Special Actions
@@ -358,6 +359,7 @@ Note that many of the checks require a check_target, this can be same or differe
  * `cooldown`(`cd`) - checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
  * `power`(`p`) - checks the power (mana/rage/energy) of the check_target.
  * `condition`(`con`) - checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
+ * `modifier`(`mod`) - checks if `shift`(`s`)/`alt`(`a`)/`ctrl`(`c`) are held down `/nb Regrowth@player [mod@player=shift]`
 
 ### <Check_Target>
 
@@ -397,6 +399,19 @@ I haven't found a workaround this this limitation as yet, maybe there isn't one.
 # Lots of Examples :)
 
 ## General
+
+### Cast on target or self if shift is held down.
+
+```
+/nb Regrowth@target [mod@player!shift]
+/nb Regrowth@player [mod@player=shift]
+```
+shorthand:
+```
+/nb regr@t [mod@p!s]
+/nb regr@t [mod@p=s]
+```
+
 
 ## Druid
 

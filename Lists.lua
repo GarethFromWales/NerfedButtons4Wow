@@ -6,8 +6,10 @@ NB.ITEMCACHE = { }
 -- list of valid custom actions, long and short forms
 -- does not include items and spells
 NB.SPECIALACTIONS = {
+	["a"] = "attack",
+	["attack"] = "attack",
 	["c"] = "cancel",
-	["cancel"] = "cancel",
+	["cancel"] = "cancel",	
 	["t"] = "target",
 	["target"] = "target",
 	["te"] = "targetenemy",
@@ -46,7 +48,9 @@ NB.VALIDCHECKS = {
 	["cd"] = "cooldown", 
 	["cooldown"] = "cooldown",
 	["con"] = "condition", 
-	["condition"] = "condition"
+	["condition"] = "condition",
+	["mod"] = "modifier", 
+	["modifier"] = "modifier"
 
 	--[[
 	["m"] = "mana",	

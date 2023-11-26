@@ -276,6 +276,49 @@ end
 
 
 -----------------------------------------
+-- Check: Mod Keys
+-- mod@player=shift
+-- mod@player=ctrl
+-- mod@player=alt
+function NB.check_modifier(unit, operator, value)
+
+    -- validate value and extract first character
+    value = string.lower(value)
+    if  value ~= "shift" and value ~= "s"  
+    and value ~= "alt" and value ~= "a" 
+    and value ~= "ctrl" and value ~= "c" 
+    then
+        NB.error("Invalid value passed to power modifier, only shift(s),alt(a),ctrl(c) are allowed.")
+        return false
+    end  
+    value = string.sub(value, 1, 1)
+
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to modifier check, only = and ! are allowed.")
+        return false
+    end    
+
+    local shiftDown = IsShiftKeyDown();
+    local ctrlDown  = IsControlKeyDown();
+    local altDown   = IsAltKeyDown();
+
+    local test = false
+    -- finally use the operator to decide on true/false
+    if operator == "=" and value == "s" and  shiftDown then return true end
+    if operator == "!" and value == "s" and  not shiftDown then return true end
+    if operator == "=" and value == "c" and  ctrlDown then return true end
+    if operator == "!" and value == "c" and  not ctrlDown then return true end
+    if operator == "=" and value == "a" and  altDown then return true end
+    if operator == "!" and value == "a" and  not altDown then return true end
+
+    return false
+
+end
+
+
+
+
+-----------------------------------------
 -- Check: Combat
 -- com@player=1
 -- com@target!1

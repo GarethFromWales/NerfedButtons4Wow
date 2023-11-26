@@ -48,6 +48,9 @@
         "GetContainerItemLink",
         "NUM_BAG_SLOTS",
         "GetContainerItemCooldown",
-        "UseContainerItem"
+        "UseContainerItem",
+        "IsShiftKeyDown",
+        "IsControlKeyDown",
+        "IsAltKeyDown"
     ]
 }

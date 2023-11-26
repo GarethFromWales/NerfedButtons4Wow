@@ -1,5 +1,9 @@
 if NB == nil then NB = {} end
 
+function NB.action_attack(consumable)
+    for z=1,172 do if IsAttackAction(z)then if not IsCurrentAction(z)then UseAction(z);end;end;end;
+end
+
 
 -----------------------------------------
 -- Action: Powershift
@@ -28,7 +32,7 @@ function NB.action_powershift(consumable)
     -- get consumable info
     local bagId = -1
     local itemSlot = -1
-    if consumable ~= "player" then
+    if consumable ~= "player" and consumable ~= "" then
         for bag = 0, NUM_BAG_SLOTS do
             for slot = 1, GetContainerNumSlots(bag) do
                 local item = GetContainerItemLink(bag, slot)
@@ -43,7 +47,7 @@ function NB.action_powershift(consumable)
     local _, potCD = GetContainerItemCooldown(bagId, itemSlot)
     local canPot = potCD == 0
     if bagId == -1 or itemSlot == -1 then
-        if consumable ~= "player" then
+        if consumable ~= "player" and consumable == "" then
             NB.error('Item ' .. consumable .. ' not found in bags.')
         end
         canPot = false

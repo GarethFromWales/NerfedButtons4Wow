@@ -41,7 +41,7 @@ end
 function NB.slash_handler(msg)
 
 	-- populate spell and item cache if not populated
-	if not NB.getSpellFromCache("Attack") then
+	if not NB.getSpellFromCache("attack") then
 		NB.populateSpellCache()
 		--NB.populateItemCache() 
 	end
@@ -381,6 +381,8 @@ function NB.extract_and_validate_checks(checks)
 			end	
 			
 			-- validate the target
+				check_target = NB.validate_check_target(check_target) -- get WoW API correct form of target name
+			if check_target == "" then check_target = "player" end
 			if NB.validate_check_target(check_target ~= "") then 
 				check_target = NB.validate_check_target(check_target) -- get WoW API correct form of target name
 			else
@@ -565,7 +567,7 @@ function NB.getSpellFromCache(spell)
 	if NB.SPELLCACHE[spell] then
 		return NB.SPELLCACHE[spell]
     else
-        if spell ~= "Attack " then
+        if spell ~= "attack" then
 			NB.error("Could not find spell: "..spell) -- we use attack as a check to init the cache
 		end
         return false
