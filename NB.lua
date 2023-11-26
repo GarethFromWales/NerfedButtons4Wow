@@ -15,6 +15,8 @@ NB.NerfedButtonsLoaded = false;
 --
 function NerfedButtons_EventHandler()
 	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnVariablesLoaded(); end
+	if (event=="BAG_UPDATE" ) then NB.populateItemCache() ; end
+	if (event=="SPELLS_CHANGED" ) then NB.populateSpellCache() ; end
 end
 
 
@@ -43,7 +45,7 @@ function NB.slash_handler(msg)
 	-- populate spell and item cache if not populated
 	if not NB.getSpellFromCache("attack") then
 		NB.populateSpellCache()
-		--NB.populateItemCache() 
+		NB.populateItemCache() 
 	end
 
 	-- extract the ACTION and CONDITIONS from the command-line string
@@ -71,6 +73,7 @@ function NB.slash_handler(msg)
 	-- we stop here if we don't get a propper validated spell/item/special.
 	local action_type = "" -- do we have an item, spell or special?=
 	action_name, action_type, action_target = NB.extract_and_validate_action(action_name, action_target)
+
 	if action_name == "" or action_type == "" or action_target == "" then
 		NB.error("Error parsing NB: "..msg)
 		NB.error("Refer to documentation and try again.")
@@ -143,7 +146,7 @@ function NB.slash_handler(msg)
 
 			-- deal with item actions
 			if(action_type == "item") then 
-				if UseItemByName(action_name, action_target == "player")  then
+				if UseContainerItem(action_name[1], action_name[2], action_target == "player")  then
 					
 				end
 				NB.cooldowns[action_name] = time() -- store the time the spell/item was cast
@@ -206,7 +209,6 @@ function NB.extract_and_validate_action(orig_action_name, orig_action_target)
 			break
 		end
 	end	
-
 	if NB.SPELLCACHE[action_name] then  -- deal with spell actions
 		action_name = NB.SPELLCACHE[action_name]
 		local action_type = "spell"
@@ -215,8 +217,7 @@ function NB.extract_and_validate_action(orig_action_name, orig_action_target)
 		--NB.debug("va 3.2:"..action_target)		
 		return action_name, "spell", action_target
 	end
-
-	if NB.ITEMCACHE[action_name] then -- deal with item actions
+	if type(NB.ITEMCACHE[action_name]) == "table" then -- deal with item actions
 		action_name = NB.ITEMCACHE[action_name]
 		local action_type = "item"
 		--NB.debug("va 3.3:"..action_name)
@@ -485,17 +486,18 @@ end
 -- Util: Populates all the items on
 -- the player into a cache
 function NB.populateItemCache() 
-	-- populate spells
-	local i = 1
-	while true do
-	   local itemName, spellRank = GetSpellName(i, BOOKTYPE_SPELL)
-	   
-	   if not itemName then do break end end
-
-	   NB.putItemIntoCache(itemName) 
-	   
-	   i = i + 1
-	end
+	-- populate items
+	
+    -- get consumable info
+	for bag = 0, NUM_BAG_SLOTS do
+		for slot = 1, GetContainerNumSlots(bag) do
+		   local itemLink = GetContainerItemLink(bag, slot)
+		   if itemLink then
+			local itemName = gsub(itemLink,"^.*%[(.*)%].*$","%1")
+			NB.putItemIntoCache(itemName, bag, slot)     
+		   end
+		end
+	 end
 end
 
 
@@ -534,11 +536,11 @@ end
 -----------------------------------------
 -- Util: Populates a item database
 --
-function NB.putItemIntoCache(spellOrItemName) 
+function NB.putItemIntoCache(spellOrItemName, bag, slot) 
 
 	-- we treat everything in lowercase
 	spellOrItemName = string.lower(spellOrItemName)
-
+	--NB.print(spellOrItemName)
 	local _, wcount = gsub(spellOrItemName, "%S+", "")
 	local abbrev = ""
 
@@ -547,9 +549,8 @@ function NB.putItemIntoCache(spellOrItemName)
 	else
 		abbrev = gsub(spellOrItemName, "(%a)(%a)(%a).*", "%1%2%3")
 	end
-
-	NB.SPELLCACHE[spellOrItemName] =  spellOrItemName 
-	NB.SPELLCACHE[abbrev] = spellOrItemName
+	NB.ITEMCACHE[spellOrItemName] =  {bag, slot}
+	NB.ITEMCACHE[abbrev] = {bag, slot}
 end
 
 

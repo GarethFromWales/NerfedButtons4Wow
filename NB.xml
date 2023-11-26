@@ -15,6 +15,8 @@
       <OnLoad>
         this:RegisterEvent("VARIABLES_LOADED");
         this:RegisterEvent("ADDON_LOADED");
+        this:RegisterEvent("BAG_UPDATE");
+        this:RegisterEvent("SPELLS_CHANGED");
         self = {};
       </OnLoad>
       <OnEvent>

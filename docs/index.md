@@ -18,16 +18,24 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
 1. Restart Turtle WoW
 
-## Issues and Limitations
 
-1. Only spells supported right now, items will be added in the next minor release
-1. Doesn't play nicely with SuperMacros.
-1. Smart targetting partly working, still needs work. Added example to the Druids section at the end of the documenation.
-
-## Latest News - version 1.1
+## Latest News - version 1.3
 
 1. Syntax for actions and checks changed significantly between alpha and version 1 code. Read this doc and update your macros accordingly.
-1. Added new modifier keys check (shift/alt/delete) `/nb Regrowth@player [mod@player=shift]`
+1. Added new modifier keys check (shift/alt/delete):
+  
+    `/nb Regrowth@player [mod@player=shift]`
+
+1. Items can now be used as actions:
+    
+    `/nb Moonberry Juice@player [buff@player!Drink]`
+
+1. Internal spell, action and item database to allow abbreviated actions now update on learning new spells and obtaining new items.
+
+## Issues and Limitations
+
+1. Doesn't play nicely with SuperMacros.
+1. Smart targetting partly working, still needs work. Added example to the Druids section at the end of the documenation.
 
 ## Your first few NerfedButtons
 
