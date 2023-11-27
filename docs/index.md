@@ -403,6 +403,9 @@ Note that many of the checks require a check_target, this can be same or differe
 ##### `power`(`p`) - Power
  * `power`(`p`) - checks the power (mana/rage/energy) of the check_target. Append % to the value to check percentage of power.
 
+ ##### `mana`(`m`) - Mana
+ * `mana`(`m`) - same as power check for all classes apart from druids. For druids always checks the mana even when in forms. Append % to the value to check percentage of mana.
+
 ##### `form`(`f`) - Form
  * checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
 
