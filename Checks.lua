@@ -484,8 +484,3 @@ function NB.check_mana(unit, operator, powerTest)
     return false
 
 end
-
-
-
-
-
