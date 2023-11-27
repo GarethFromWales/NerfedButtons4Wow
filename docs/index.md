@@ -1,6 +1,6 @@
-# NerfedButtons - Vanilla WoW 1.12 Add-On 
+# NerfedButtons - Vanilla (Turtle WoW) WoW 1.12 Add-On 
 
-NerfedButtons (NB) lets you define prioritised and conditional ability/item/macro lists for your actionbar buttons. NerfedButtons will automatically ensure that the highest priority ability/item/macro that passes its conditions is bound to the actionbar button slot at any time.
+NerfedButtons (NB) lets you define prioritised and conditional spell/ability/item lists for your actionbar buttons. NerfedButtons will automatically ensure that the highest priority ability/item/macro that passes its checks is used when you press a button.
 
 * Too many hotbuttons aggravating your RSI?
 * Want to stimulate your brain as well as your reflexes?
@@ -9,6 +9,43 @@ NerfedButtons (NB) lets you define prioritised and conditional ability/item/macr
 if any of the above apply, NerfedButtons may be what you are looking for!
 
 Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exercise of a few brain cells, you have been warned...
+
+instructions in docs folder in .md format, or check the online version at https://garethfromwales.github.io/NerfedButtons4Wow/
+
+## Here's some simple examples
+
+### Powershift with consumable use (double press with spam protection)
+```
+/nb powershift@Greater Healing Potion
+```
+
+### Scan group for anyone with poison/curse and cure them with one buttons press.
+```
+/nb Cure Poison@group [condition@smart=poison]
+/nb Remove Curse@group [condition@smart=curse]
+```
+
+### Rejuvenation if not buffed with it, then Regrowth on target (or on player if you hold down shift)
+```
+/nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
+/nb Rejuvenation@player [mod@player=shift,buff@player!Rejuvenation]
+/nb Regrowth@target [mod@target!shift]
+/nb Regrowth@player [mod@player=shift]
+```
+
+### Shorthand for super concise NBs!
+```
+/nb cp@g [con@s=p]
+/nb rc@g [con@s=c]
+```
+
+```
+/nb reju@t [m@t!s,b@t!reju]
+/nb reju@p [m@p=s,b@t!reju]
+/nb regr@t [m@t!s]
+/nb regr@p [m@p=s]
+```
+
 
 ## Installation
 
@@ -276,7 +313,6 @@ If you have multiple checks for a single action, seperate them with a comma```,`
 /nb <action_name>@<action_target> [<check_name>@<check_target><operator><check_value>]
 ```
 
-
 ## Actions
 
 ### <Action_Name>
@@ -311,13 +347,12 @@ Actions are either spelled out in full or abbreviated:
 
     Each of the special actions can be combined with checks. For example:
 
+    If the players health is less than 20% then stop casting whatever you are casting and do this instead. IF the player's health is above 20%, wait until the current action is copmpleted.
     ```
     /run if nil then CastSpellByName("Healing Touch") end
     /nb stop [health@player<20%]
     /nb Healing Touch@player
     ```
-
-    Will cast Enrage and then cancel it so you get the initial benefit but remove it so as not to suffer the detrimental after effects.
 
 ### <Action_Target>
 
@@ -417,7 +452,7 @@ The value associated with the check to test against. This is check specific in m
 
 NerfedButtons (or NB for short) was originally written for Warhammer Online and had a love/hate relashionship with players and developers alike. Some claimed it dumbed down the game too much, whilst others loved the freedom it gave them to simplify overly complex keybindings so they could focus on gameplay. NB only did what was allowable by WAR API and as such was not against the TOS.
 
-The original NB was text only, but  a couple of great developers joined the team who produced a user interface that greatly improved the accessability of NB to those who were scripting adverse.
+The original NB was text only, but a couple of great developers joined the team who produced a user interface that greatly improved the accessability of NB to those who were scripting adverse.
 
 Much later, versions were written for Rift and Age of Conan which offered similar functionality but only really implemented as a technical challenge. The implimentations however were clearly against the TOS and as such the addons were poorly documentated and maintained.
 
@@ -439,36 +474,49 @@ I haven't found a workaround this this limitation as yet, maybe there isn't one.
 
 # Lots of Examples :)
 
+Most of these are in shorthand format.
+
 ## General
 
-### Cast on target or self if shift is held down.
-
-```
-/nb Regrowth@target [mod!shift]
-/nb Regrowth@player [mod=shift]
-```
-shorthand:
-```
-/nb regr@t [mod!s]
-/nb regr@t [mod=s]
-```
-
+#### Spamable Drink NB
+`/nb Moonberry Juice@player [buff@player!Drink]`
 
 ## Druid
 
-### Group Care
+#### Cast on target or self if shift is held down.
+
+```
+/run if nil then CastSpellByName("Regrowth") end
+/nb regr@t [m!s]
+/nb regr@t [m=s]
+```
+
+#### Group Care
 
 Single button macro to decurse, heal, buff and everything for your group. Can be modified to raid very easily.
 
 ```
 /run if nil then CastSpellByName("Rejuvenation") end
-/nb ap@g [b@s!Abolish Poison,con@s=p]
+/nb ap@g [b@s!ap,con@s=p]
 /nb rc@g [con@s=c]
 /nb ht@g [h@s<60%]
-/nb Regr@g [b@s!Regrowth,h@p<80%]
-/nb Reju@g [b@s!Rejuvenation]
-/nb thor@g [b@s!Thorns]
-/nb motw@g [b@s!mark]
+/nb Regr@g [b@s!regr,h@p<80%]
+/nb Reju@g [b@s!reju]
+/nb thor@g [b@s!thor]
+/nb motw@g [b@s!motw]
+```
+
+Powershift with Greater Healing Potion use if shift helf down, normal PS if not (double press with spam protection)
+```
+/nb ps@ghp [mod@=s]
+/nb ps [mod!s]
+```
+
+Scan group for anyone with poison/curse and cure them with one buttons press.
+```
+/run if nil then CastSpellByName("Cure Poison") end
+/nb cp@group [con@s=p]
+/nb rc@group [con@s=c]
 ```
 
 ## Mage
