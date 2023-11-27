@@ -35,11 +35,6 @@ instructions in docs folder in .md format, or check the online version at https:
 
 ### Shorthand for super concise NBs!
 ```
-/nb cp@g [con@s=p]
-/nb rc@g [con@s=c]
-```
-
-```
 /nb reju@t [m@t!s,b@t!reju]
 /nb reju@p [m@p=s,b@t!reju]
 /nb regr@t [m@t!s]
@@ -478,8 +473,11 @@ Most of these are in shorthand format.
 
 ## General
 
-#### Spamable Drink NB
-`/nb Moonberry Juice@player [buff@player!Drink]`
+#### Food and Drink at the same time (spam proof)
+```
+/nb Moonberry Juice@player [buff@player!Drink]
+/nb Fine Aged Cheddar@player [buff@player!Food]
+```
 
 ## Druid
 
@@ -500,7 +498,7 @@ Single button macro to decurse, heal, buff and everything for your group. Can be
 /nb ap@g [b@s!ap,con@s=p]
 /nb rc@g [con@s=c]
 /nb ht@g [h@s<60%]
-/nb Regr@g [b@s!regr,h@p<80%]
+/nb Regr@g [b@s!regr,h@s<80%]
 /nb Reju@g [b@s!reju]
 /nb thor@g [b@s!thor]
 /nb motw@g [b@s!motw]

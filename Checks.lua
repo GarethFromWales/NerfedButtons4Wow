@@ -1,5 +1,5 @@
-local DruidManaLib = AceLibrary("DruidManaLib-1.0")
 if NB == nil then NB = {} end
+NB.DruidManaLib = nil 
 
 
 ----------------------------------------
@@ -406,20 +406,33 @@ function NB.check_condition(unit, operator, typeCheck)
 end
 
 
-
-
-
-
-
 -----------------------------------------
 -- Check: Mana
 --
-function NB.check_mana(unit, powerTest)
+function NB.check_mana(unit, operator, powerTest)
+
+    -- if its not a druid then simply return the current power
+    local _, class, _ = UnitClass(unit) 
+    if class ~= "DRUID" then
+        return NB.check_power(unit, operator, powerTest)
+    end
+
+    -- we have a druid :) check if we have acelibrary and druidmanabar installed
+    -- if not throw and error message, if so then load the library so we can use it.
+    local _, _, _, enabled, loadable, _, _ = GetAddOnInfo("DruidManaBar")
+    if not enabled or not loadable then 
+        NB.error("DruidManaBar addon is required to check mana in druid forms.")
+        NB.error("Ensure DruidManaBar is installed and enabled.")
+        return false
+    else
+        if not NB.DruidManaLib then
+            NB.DruidManaLib = AceLibrary("DruidManaLib-1.0")
+        end
+    end
 
     -- if target is not a shapeshifted druid then return current power
     local DRUID_SHIFT_FORMS = { bear=1, aquatic=2, cat=3, travel=4, moonkin=5 };
     local in_form = false
-    local _, class, _ = UnitClass(unit) 
     if class == "DRUID" then
         for i=1,5  do
             local _, _, active = GetShapeshiftFormInfo(i)
@@ -428,10 +441,45 @@ function NB.check_mana(unit, powerTest)
         end
     end 
     if not in_form then
-        return NB.check_power(unit, powerTest)
+        return NB.check_power(unit, operator, powerTest)
+    end
+      
+    -- CUSTOM DRUID MANA CODE HERE
+    if  operator ~= ">" and operator ~= "<" and operator ~= "=" and operator ~= "!" then
+        NB.error("Invalid operator passed to mana check, only > < ! = are allowed.")
+        return false
+    end            
+
+    -- get current and max mana from druidmanaliv :)
+    local currentMana, maxMana = NB.DruidManaLib:GetMana()
+
+    -- do we have a percentage at the end of the powerTest?
+    local num = gsub(powerTest,"(.-)%%.*", "%1")
+    local percent  = false
+    local actualPower = 0
+    if string.find(powerTest, "%%") then
+        actualPower=100*currentMana/maxMana
+    else
+        actualPower=currentMana
     end
     
-    -- CUSTOM DRUID MANA CODE HERE
+    if operator == "=" then
+        if tonumber(actualPower) == tonumber(num) then
+            return true
+        end
+    elseif operator == "<" then
+        if tonumber(actualPower) < tonumber(num) then
+            return true
+        end
+    elseif operator == ">" then
+        if tonumber(actualPower) > tonumber(num) then
+            return true
+        end
+    elseif operator == "!" then
+        if tonumber(actualPower) ~= tonumber(num) then
+            return true
+        end        
+    end
 
     return false
 

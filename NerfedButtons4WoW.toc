@@ -1,5 +1,5 @@
 ## Interface: 11200
 ## Title: NerfedButtons for Vanilla WoW
 ## Notes: Priority based conditional sequencer for Vanilla WoW.
+## OptionalDeps: AceLibrary, DruidManaLib
 NB.xml
-libs\DruidManaLib-1.0\DruidManaLib-1.0.lua

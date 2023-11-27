@@ -50,13 +50,9 @@ NB.VALIDCHECKS = {
 	["con"] = "condition", 
 	["condition"] = "condition",
 	["mod"] = "modifier", 
-	["modifier"] = "modifier"
-
-	--[[
+	["modifier"] = "modifier",
 	["m"] = "mana",	
-	["mana"] = "mana", 	
-,]]--
-
+	["mana"] = "mana"
 }
 
 -- list of valid targets, long and short forms
