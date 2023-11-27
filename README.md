@@ -1,6 +1,6 @@
-# NerfedButtons - Vanilla WoW 1.12 Add-On 
+# NerfedButtons - Vanilla (Turtle WoW) WoW 1.12 Add-On 
 
-NerfedButtons (NB) lets you define prioritised and conditional ability/item/macro lists for your actionbar buttons. NerfedButtons will automatically ensure that the highest priority ability/item/macro that passes its conditions is bound to the actionbar button slot at any time.
+NerfedButtons (NB) lets you define prioritised and conditional spell/ability/item lists for your actionbar buttons. NerfedButtons will automatically ensure that the highest priority ability/item/macro that passes its checks is used when you press a button.
 
 * Too many hotbuttons aggravating your RSI?
 * Want to stimulate your brain as well as your reflexes?
@@ -10,4 +10,4 @@ if any of the above apply, NerfedButtons may be what you are looking for!
 
 Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exercise of a few brain cells, you have been warned...
 
-instructions in docs folder in md format, or check the online version at https://garethfromwales.github.io/NerfedButtons4Wow/
+instructions in docs folder in .md format, or check the online version at https://garethfromwales.github.io/NerfedButtons4Wow/
