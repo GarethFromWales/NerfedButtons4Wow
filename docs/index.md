@@ -51,7 +51,7 @@ instructions in docs folder in .md format, or check the online version at https:
 1. Restart Turtle WoW
 
 
-## Latest News - version 1.3
+## Latest News - version 1.4
 
 1. Syntax for actions and checks changed significantly between alpha and version 1 code. Read this doc and update your macros accordingly.
 1. Added new modifier keys check (shift/alt/delete):
@@ -63,6 +63,8 @@ instructions in docs folder in .md format, or check the online version at https:
     `/nb Moonberry Juice@player [buff@player!Drink]`
 
 1. Internal spell, action and item database to allow abbreviated actions now update on learning new spells and obtaining new items.
+
+1. New mana check for druids (everyone else can use the power check). Requires DruidManaBar addon to function. No point remaking the wheel and every druid needs the addon anyway.
 
 ## Issues and Limitations
 
