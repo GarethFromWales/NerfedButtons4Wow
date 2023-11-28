@@ -144,46 +144,43 @@ function NB.slash_handler(msg)
 	-- loop as soon as we find someone who passes all the checks.
 	-- 
 	-- If we're not a memebr of a party or raid then set the action_target to the player.
-	local loops = 1
 	local members = 0
-	if action_target == "party" then members = GetNumPartyMembers() end -- party does not incldue the player
-	if action_target == "raid" then members = GetNumRaidMembers() end
+	if action_target == "party" then members = GetNumPartyMembers()  end -- party does not incldue the player
+	if action_target == "raid" then members = GetNumRaidMembers() end -- raid includes the player
 
-	-- If we have a smart action_target party/raid and we're not in a party/raid
-	-- then default to the player as the action_target.
-	-- TODO: Will need to extend this idea if and when we have friendly/hostile
-	-- smart targetting that do not rely on party/group.
+	-- loop through party and raid smart targets
 	if action_target == "party" or action_target == "raid" then
-		if members == 0 then action_target = "player" else loops = members end
-	end
+		
+		for i = 1, members do
+			local smart_action_target = action_target..i
+			NB.doChecksAndAction(action_name, action_rank, action_type, action_target, smart_action_target, checks)
+		end
+		if members > 0 and action_target == "party" then
+			NB.doChecksAndAction(action_name, action_rank, action_type, action_target, "player", checks)
+		end
 
-	-- loop through targets
-	for i = 1, loops do
-		NB.doChecksAndAction(i, action_name, action_rank, action_type, action_target, checks)
-	end
+		-- If we have a smart action_target party/raid and we're not in a party/raid
+		-- then default to the player as the action_target.
+		if members == 0 and (action_target == "party" or action_target == "raid") then
+			NB.doChecksAndAction(action_name, action_rank, action_type, "player", checks)
+		end		
+	else
+		NB.doChecksAndAction(action_name, action_rank, action_type, action_target, action_target, checks)
+	end 
 
-	-- Exception! if party or raid with more than 0 members then lets also do the player :)
-	-- as they are not incldued in the party API for some reason
-	if members > 0 then
-		NB.doChecksAndAction(1, action_name, action_rank, action_type, "player", checks)
-	end
+
 
 end
 
-function NB.doChecksAndAction(i, action_name, action_rank, action_type, action_target, checks)
-
-		-- if we're in a party we need to add the player as the last target of the loop
-		-- TODO: does this need to be limited to party? and not raid as well?
-
-		--if loops > 1 and i == loops then action_target = "player" end
+function NB.doChecksAndAction(action_name, action_rank, action_type, action_target, smart_action_target, checks)
 
 		-- Run all the checks. If they all pass then
 		-- do the action!
-		if NB.do_checks(checks, action_target, i) then
+		if NB.do_checks(checks, action_target, smart_action_target) then
 			-- all the check have passed!!! Do something!!!
 
 			-- target the right target if we had a dynamic
-			if (action_target=="raid" or action_target == "party") and i > 1 then TargetUnit(action_target..i) end
+			if (action_target=="raid" or action_target == "party") then TargetUnit(smart_action_target) end
 
 			-- deal with special actions like targetting and talking
 			if(action_type == "special") then
@@ -215,7 +212,7 @@ function NB.doChecksAndAction(i, action_name, action_rank, action_type, action_t
 			end
 
 			-- go back to original target
-			if (action_target=="raid" or action_target == "party") and i > 1 then TargetLastTarget() end
+			if (action_target=="raid" or action_target == "party") then TargetLastTarget() end
 			
 		else
 			-- all checks failed, do nothing
@@ -475,7 +472,7 @@ end
 -- Performs each check in the table
 -- and if all pass returns true, 
 -- else false
-function NB.do_checks(checks, action_target, loop_iteration)
+function NB.do_checks(checks, action_target, smart_action_target)
 
 	-- checks is a table of: {name = check_name, target = check_target, operator = checkOperator, value = checkValue }
 
@@ -490,9 +487,9 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		-- to a real unit (party1/raid1/...). If action_target is "player/target" then overide smart check_target to
 		-- "player/target".
 		if ctarget == "smart" and (action_target == "party" or action_target == "raid") then	
-			ctarget = action_target..loop_iteration
+			ctarget = smart_action_target
 		elseif ctarget == "smart" then
-			ctarget = action_target
+			ctarget = smart_action_target
 		end
 		
 		-- if the target does not exist, fail the check and return

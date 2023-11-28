@@ -53,9 +53,14 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 1. Restart Turtle WoW
 
 
-## Latest News - version 1.4
+## Latest News - version 1.6
 
-1. Syntax for actions and checks changed significantly between alpha and version 1 code. Read this doc and update your macros accordingly.
+1. Group and Raid smart targeting now works. :smiley:
+
+    Keep Rejuvenation up on all group members with:
+
+    `/nb reju@g [b@s!reju]`
+
 1. Added new modifier keys check (shift/alt/delete):
   
     `/nb Regrowth@player [mod@player=shift]`
