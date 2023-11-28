@@ -1,31 +1,33 @@
-# NerfedButtons - Vanilla (Turtle WoW) WoW 1.12 Add-On 
-
 NerfedButtons (NB) lets you define prioritised and conditional spell/ability/item lists for your actionbar buttons. NerfedButtons will automatically ensure that the highest priority ability/item/macro that passes its checks is used when you press a button.
 
 * Too many hotbuttons aggravating your RSI?
 * Want to stimulate your brain as well as your reflexes?
 * Are you a casual player who wants a chance against those 12 fingered mutants who fluidly play whack-a-mole with 48 buttons 24 hours a day?
 
-if any of the above apply, NerfedButtons may be what you are looking for!
+If any of the above apply, NerfedButtons may be what you are looking for! :+1:
 
 Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exercise of a few brain cells, you have been warned...
 
-instructions in docs folder in .md format, or check the online version at https://garethfromwales.github.io/NerfedButtons4Wow/
+An offline copy of this document can be found in the addon /docs folder in .md format.
 
 ## Here's some simple examples
 
-### Powershift with consumable use (double press with spam protection)
+#### Powershift with consumable use
+Double-press and includes spam protection in case you hit the button a 3rd time in succession.
 ```
 /nb powershift@Greater Healing Potion
 ```
 
-### Scan group for anyone with poison/curse and cure them with one buttons press.
+### Group Poison/Curse cure
+Scasn your group for anyone with poison/curse and cure them with one buttons press.
+*Note: For flexibility of use, if you are not in a group, falls-back to using you as the target.*
 ```
 /nb Cure Poison@group [condition@smart=poison]
 /nb Remove Curse@group [condition@smart=curse]
 ```
 
-### Rejuvenation if not buffed with it, then Regrowth on target (or on player if you hold down shift)
+### Rejuvenation and Regrowth with self-cast modifier
+Rejuvenation on target if not buffed with it, then Regrowth on target (or on player if you hold down shift)
 ```
 /nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
 /nb Rejuvenation@player [mod@player=shift,buff@player!Rejuvenation]
@@ -34,13 +36,13 @@ instructions in docs folder in .md format, or check the online version at https:
 ```
 
 ### Shorthand for super concise NBs!
+All of your NB macros can be reduced to shorthand. See the section on Shorthand later
 ```
 /nb reju@t [m@t!s,b@t!reju]
 /nb reju@p [m@p=s,b@t!reju]
 /nb regr@t [m@t!s]
 /nb regr@p [m@p=s]
 ```
-
 
 ## Installation
 
@@ -241,7 +243,7 @@ Here is the NB I use to enter Prowl on my druid. It may seem a little complex...
 /nb Cat Form [form@player!Cat Form]
 /nb Prowl [buff@player!Prowl]
 /nb cancel@Prowl [cooldown@player>3Prowl]
-/nb Track Humanoids@player [buff@player!Track Humanoids][form@player=Cat Form]
+/nb Track Humanoids@player [buff@player!Track Humanoids,form@player=Cat Form]
 ```
 
 This is what it does:
@@ -260,7 +262,7 @@ The shorthand version is:
 /nb cf [f@p!cf]
 /nb prow [b@p!prow]
 /nb can@prow [cd@p>3prow]
-/nb th@p [b@p!th][f@p=cf]
+/nb th@p [b@p!th,f@p=cf]
 ```
 
 ### Once button druid self care
@@ -361,7 +363,7 @@ Actions are either spelled out in full or abbreviated:
   * `focus`  (`f`) - cast on your focus target
 
   ```
-  /nb [Rejuvenation:focus][health:focus:<90]
+  /nb [Rejuvenation:focus,health:focus:<90]
   /nb [Wrath:target]
   ```
 
@@ -377,8 +379,8 @@ Actions are either spelled out in full or abbreviated:
   always use the word smart (or 's') for the target of your checks when using smart targetting:
 
   ```
-  /nb [Cure Poison:group][con:smart:poison]
-  /nb [Remove Curse:group][con:smart:curse]
+  /nb [Cure Poison:group,con:smart:poison]
+  /nb [Remove Curse:group,con:smart:curse]
   ```
 
 ## Checks
