@@ -18,12 +18,18 @@ Double-press and includes spam protection in case you hit the button a 3rd time 
 /nb powershift@Greater Healing Potion
 ```
 
-### Group Poison/Curse cure
-Scasn your group for anyone with poison/curse and cure them with one buttons press.
+### Group Buff/Cure Poison & Curse/Heal All-in-one!
+Scans your group for anyone with poison/curse/needs buff/needs heals, sort it out with one buttons press.
 *Note: For flexibility of use, if you are not in a group, falls-back to using you as the target.*
 ```
-/nb Cure Poison@group [condition@smart=poison]
-/nb Remove Curse@group [condition@smart=curse]
+/run if nil then CastSpellByName("Rejuvenation") end
+/nb ap@g [b@s!ap,con@s=p]
+/nb rc@g [con@s=c]
+/nb ht@g [h@s<60%]
+/nb Regr@g [b@s!Regr,h@s<80%]
+/nb thor@g [b@s!Thor,com@s!]
+/nb motw@g [b@s!mark,com@s!]
+/nb Reju@g [b@s!Reju,h@s<95%]
 ```
 
 ### Rejuvenation and Regrowth with self-cast modifier
@@ -503,17 +509,17 @@ Most of these are in shorthand format.
 
 #### Group Care
 
-Single button macro to decurse, heal, buff and everything for your group. Can be modified to raid very easily.
+Single button macro to decurse, heal, buff and everything for your group. Can be modified to raid very easily, just replace @g with @r.
 
 ```
 /run if nil then CastSpellByName("Rejuvenation") end
 /nb ap@g [b@s!ap,con@s=p]
 /nb rc@g [con@s=c]
 /nb ht@g [h@s<60%]
-/nb Regr@g [b@s!regr,h@s<80%]
-/nb Reju@g [b@s!reju]
-/nb thor@g [b@s!thor]
-/nb motw@g [b@s!motw]
+/nb Regr@g [b@s!Regr,h@s<80%]
+/nb thor@g [b@s!Thor,com@s!]
+/nb motw@g [b@s!mark,com@s!]
+/nb Reju@g [b@s!Reju,h@s<95%]
 ```
 
 Powershift with Greater Healing Potion use if shift helf down, normal PS if not (double press with spam protection)
