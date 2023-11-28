@@ -6,26 +6,30 @@ NerfedButtons (NB) lets you define prioritised and conditional spell/ability/ite
 * Want to stimulate your brain as well as your reflexes?
 * Are you a casual player who wants a chance against those 12 fingered mutants who fluidly play whack-a-mole with 48 buttons 24 hours a day?
 
-if any of the above apply, NerfedButtons may be what you are looking for!
+If any of the above apply, NerfedButtons may be what you are looking for! :+1:
 
 Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exercise of a few brain cells, you have been warned...
 
-instructions in docs folder in .md format, or check the online version at https://garethfromwales.github.io/NerfedButtons4Wow/
+Instructions in /docs folder in .md format, or check the online version at https://garethfromwales.github.io/NerfedButtons4Wow/
 
 ## Here's some simple examples
 
-### Powershift with consumable use (double press with spam protection)
+#### Powershift with consumable use
+Double-press and includes spam protection in case you hit the button a 3rd time in succession.
 ```
 /nb powershift@Greater Healing Potion
 ```
 
-### Scan group for anyone with poison/curse and cure them with one buttons press.
+### Group Poison/Curse cure
+Scasn your group for anyone with poison/curse and cure them with one buttons press.
+*Note: For flexibility of use, if you are not in a group, falls-back to using you as the target.*
 ```
 /nb Cure Poison@group [condition@smart=poison]
 /nb Remove Curse@group [condition@smart=curse]
 ```
 
-### Rejuvenation if not buffed with it, then Regrowth on target (or on player if you hold down shift)
+### Rejuvenation and Regrowth with self-cast modifier
+Rejuvenation on target if not buffed with it, then Regrowth on target (or on player if you hold down shift)
 ```
 /nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
 /nb Rejuvenation@player [mod@player=shift,buff@player!Rejuvenation]
@@ -34,13 +38,13 @@ instructions in docs folder in .md format, or check the online version at https:
 ```
 
 ### Shorthand for super concise NBs!
+All of your NB macros can be reduced to shorthand. See the section on Shorthand later
 ```
 /nb reju@t [m@t!s,b@t!reju]
 /nb reju@p [m@p=s,b@t!reju]
 /nb regr@t [m@t!s]
 /nb regr@p [m@p=s]
 ```
-
 
 ## Installation
 
