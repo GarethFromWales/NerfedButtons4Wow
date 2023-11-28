@@ -49,20 +49,57 @@ function NB.slash_handler(msg)
 		NB.populateItemCache() 
 	end
 
-	-- extract the ACTION and CONDITIONS from the command-line string
+	-- 1. ACTION and CHECKS Extraction
+	--
+	-- extract the ACTION and checks from the command-line string
 	-- Example: "Flame Shock@target [buff@target!=Flame Shock, health@target>50%]"
 	-- Example: "FS@t [b@t!FS,h@t>50%]"
 	-- Example: "FS [b@t!FS,h@t>50%]"
 	-- Example: "FS [b!FS,h>50%]"
 	-- Example: "FS"
+	
 	local before_bracket = NB.trim(gsub(msg, "%[.-%]", ""))
 	local inside_brackets = NB.trim(gsub(msg, "^.-%[(.-)%].-$", "%1"))
 
-	-- extract the ACTION_NAME and ACTION_TARGET
+	-- 2. ACTION_NAME and ACTION_TARGET Extraction
+	-- 
 	-- Example: "Flame Shock@target"
 	-- Example: "FS@t"
-	local action_name, action_target = "", ""
-	action_name = gsub(before_bracket, "@.*$", "") -- "Flame Shock"
+	local action_name, action_target, action_rank = "", "", nil
+	action_name = gsub(before_bracket, "@.*$", "") -- "Flame Shock" or "Flame Shock4"
+
+	-- 3. ACTION_RANK (OPTIONAL) Extraction
+	-- Note: this isn't a safe extraction, will fail if the
+	-- ability itself has a number in the name (not that I think there are any!)
+	-- will work for:
+	-- "Flame Shock (Rank 33)"
+	-- "Flame Shock33"
+	-- "fs33"
+	--local msg= "Flame Shock (Rank 33)@target [buff@target!=Flame Shock, health@target>50%]"
+	--local msg= "Flame Shock33@target [buff@target!=Flame Shock, health@target>50%]"
+	--local msg= "FS33@target [buff@target!=Flame Shock, health@target>50%]"
+	local action_rank = ""
+	if string.find(string.lower(action_name), "%(rank.-%)") then
+		-- we have Rank in brakcets  (Rank X)
+		action_rank = tostring(NB.trim(gsub(action_name, "^.-%(.-(%d+)%).-$", "%1")))    
+		action_name = tostring(NB.trim(gsub(action_name, "%(.-%)", "")))
+		if tonumber(action_rank) > 0 then
+			-- we have a good rank
+		else
+			-- bad rank
+			action_rank = ""
+		end
+	elseif string.find(action_name, "(%a+)(%d+)") then
+		-- we have the rank without brackets
+		gsub(action_name, "(%d+)$", function(e) action_rank = action_rank .. e end)
+		action_name = tostring(NB.trim(gsub(action_name, "(%a+)%d+", "%1")))
+	end
+
+	-- 4. ACTION_TARGET Extraction
+	--
+	-- get the optional target for the action from after the @ sign
+	-- if no target is passed, the target will automaticallt set by 
+	-- NB.extract_and_validate_action(...)
 	local _, countAt = gsub(before_bracket, "@", "@")
 	if countAt > 0 then
 		action_target = gsub(before_bracket, "^.*@", "") -- "target"
@@ -70,29 +107,28 @@ function NB.slash_handler(msg)
 		action_target = ""
 	end
 
+	-- 5. Validation of ACTION_NAME and ACTION_TARGET
+	--
 	-- validate what we've got and obtain the type of action.
 	-- we stop here if we don't get a propper validated spell/item/special.
 	local action_type = "" -- do we have an item, spell or special?=
 	action_name, action_type, action_target = NB.extract_and_validate_action(action_name, action_target)
 
+	-- at this point if we don't have any of these then we have a problem with parsing
 	if action_name == "" or action_type == "" or action_target == "" then
 		NB.error("Error parsing NB: "..msg)
 		NB.error("Refer to documentation and try again.")
 		return
 	end
 
-	--[[ 	Where are we at so far?
-			action name and target have been parsed correctly and we've determined if the action
-			is a spell, item or special. We've also set the target to the player if no target is
-			passed as a parameter and the player has notbody targtted. The target is set to target
-			if no target is passed and the payer does have something targetted.
-			Next up, lets parse the checks... 	]]--
-
+	-- 6. Extract the CHECKS into a table
+	--
 	local checkString = inside_brackets;
-	--NB.debug("NB.slash_handler - Check string: "..inside_brackets)
 	local checks = {}
 	gsub(inside_brackets, '([^,]+)', function(c) c = NB.trim(c) table.insert(checks, c) end)
 
+	-- 7. Validate the CHECKS
+	--
 	-- validate checks from list
 	-- returned as table of {name = check_name, target = check_target, operator = checkOperator, value = checkValue }
 	checks = NB.extract_and_validate_checks(checks)
@@ -101,24 +137,45 @@ function NB.slash_handler(msg)
 		return
 	end
 
-	--do return end
-
-	-- if we have a dynamic action target like group, raid, friendly, hostile
-	-- then we need to perform the checks for each and break out of the loop
-	-- as soon as we find someone who passes all the checks.
+	-- 8. SMART Targetting
+	--
+	-- if we have a smart action_target like group (party) or raid then we need to
+	-- perform the checks for each member of group/raid and break out of the 
+	-- loop as soon as we find someone who passes all the checks.
+	-- 
+	-- If we're not a memebr of a party or raid then set the action_target to the player.
 	local loops = 1
-	-- TODO friendly and hostile will cause issues inside do_checks without refactoring
-	--if action_target == "friendly" then loops = 10 end -- loop through closest 10 allies
-	--if action_target == "hostile" then loops = 10 end -- loop through closest 10 enemies
-	if action_target == "party" then loops = NB.getMemberCount() end
-	if action_target == "raid" then loops = NB.getMemberCount() end
+	local members = 0
+	if action_target == "party" then members = GetNumPartyMembers() end -- party does not incldue the player
+	if action_target == "raid" then members = GetNumRaidMembers() end
+
+	-- If we have a smart action_target party/raid and we're not in a party/raid
+	-- then default to the player as the action_target.
+	-- TODO: Will need to extend this idea if and when we have friendly/hostile
+	-- smart targetting that do not rely on party/group.
+	if action_target == "party" or action_target == "raid" then
+		if members == 0 then action_target = "player" else loops = members end
+	end
 
 	-- loop through targets
 	for i = 1, loops do
+		NB.doChecksAndAction(i, action_name, action_rank, action_type, action_target, checks)
+	end
+
+	-- Exception! if party or raid with more than 0 members then lets also do the player :)
+	-- as they are not incldued in the party API for some reason
+	if members > 0 then
+		NB.doChecksAndAction(1, action_name, action_rank, action_type, "player", checks)
+	end
+
+end
+
+function NB.doChecksAndAction(i, action_name, action_rank, action_type, action_target, checks)
 
 		-- if we're in a party we need to add the player as the last target of the loop
 		-- TODO: does this need to be limited to party? and not raid as well?
-		if loops > 1 and i == loops then action_target = "player" end
+
+		--if loops > 1 and i == loops then action_target = "player" end
 
 		-- Run all the checks. If they all pass then
 		-- do the action!
@@ -126,7 +183,7 @@ function NB.slash_handler(msg)
 			-- all the check have passed!!! Do something!!!
 
 			-- target the right target if we had a dynamic
-			if (action_target=="raid" or action_target == "party") and loops > 1 then TargetUnit(action_target..i) end
+			if (action_target=="raid" or action_target == "party") and i > 1 then TargetUnit(action_target..i) end
 
 			-- deal with special actions like targetting and talking
 			if(action_type == "special") then
@@ -139,6 +196,10 @@ function NB.slash_handler(msg)
 
 			-- deal with spell actions
 			if(action_type == "spell") then 
+				-- if we have a rank then we need to use it
+				if action_rank and action_rank ~= "" then
+					action_name = action_name.."(Rank "..action_rank..")"
+				end
 				if CastSpellByName(action_name, action_target == "player") then
 					
 				end
@@ -154,12 +215,11 @@ function NB.slash_handler(msg)
 			end
 
 			-- go back to original target
-			if (action_target=="raid" or action_target == "party") and loops > 1 then TargetLastTarget() end
+			if (action_target=="raid" or action_target == "party") and i > 1 then TargetLastTarget() end
 			
 		else
 			-- all checks failed, do nothing
 		end
-	end
 
 end
 
@@ -426,13 +486,16 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		local coperator = k["operator"]
 		local cvalue = k["value"]
 
-		-- if we have a smart action target then update the check target
-		if ctarget == "smart" then
-			ctarget = action_target..loop_iteration;
-			if action_target == "player" then ctarget="player" end
+		-- if we have a smart check_target and a smart(raid/party) action_target then update the check target
+		-- to a real unit (party1/raid1/...). If action_target is "player/target" then overide smart check_target to
+		-- "player/target".
+		if ctarget == "smart" and (action_target == "party" or action_target == "raid") then	
+			ctarget = action_target..loop_iteration
+		elseif ctarget == "smart" then
+			ctarget = action_target
 		end
 		
-		-- we may end up we not target, if so, fail the check
+		-- if the target does not exist, fail the check and return
 		if not UnitExists(ctarget) then return false end
 
 		-- check the check function actually exists
@@ -442,14 +505,13 @@ function NB.do_checks(checks, action_target, loop_iteration)
 		end
 
 		-- call the check function and return false if it fails
-
 		local checkPass =  NB["check_"..cname](ctarget, coperator, cvalue)
 
 		if checkPass then 
 			--NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] PASSED")
 		else
 			--NB.print("Check: ["..cname..":"..ctarget..":"..coperator..":"..cvalue.."] FAILED")
-			return false -- a check has failed, no need to continur checking the other checks
+			return false -- a check has failed, no need to continue checking the other checks
 		end
 	end
 

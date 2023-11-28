@@ -52,6 +52,8 @@
         "IsShiftKeyDown",
         "IsControlKeyDown",
         "IsAltKeyDown",
-        "GetAddOnInfo"
+        "GetAddOnInfo",
+        "GetPartyMembers",
+        "GetRaidMembers"
     ]
 }

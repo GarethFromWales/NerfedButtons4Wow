@@ -1,6 +1,5 @@
 if NB == nil then NB = {} end
-NB.DruidManaLib = nil 
-
+NB.DruidManaLib = nil -- global that we use to points to the library bundled with DruiManaBar
 
 ----------------------------------------
 -- Check: Combo
