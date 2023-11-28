@@ -53,7 +53,7 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 1. Restart Turtle WoW
 
 
-## Latest News - version 1.6
+## Latest News - version 1.5
 
 1. Group and Raid smart targeting now works. :smiley:
 
