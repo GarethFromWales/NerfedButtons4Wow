@@ -162,7 +162,7 @@ function NB.slash_handler(msg)
 		-- If we have a smart action_target party/raid and we're not in a party/raid
 		-- then default to the player as the action_target.
 		if members == 0 and (action_target == "party" or action_target == "raid") then
-			NB.doChecksAndAction(action_name, action_rank, action_type, "player", checks)
+			NB.doChecksAndAction(action_name, action_rank, action_type, action_target, "player", checks)
 		end		
 	else
 		NB.doChecksAndAction(action_name, action_rank, action_type, action_target, action_target, checks)
@@ -379,6 +379,18 @@ function NB.validate_class_name(class)
 	local api_class = ""
 	for k,v in pairs(NB.VALIDCLASSES) do if k == class then api_class = v break end end
 	return string.lower(api_class)
+
+end
+
+
+-----------------------------------------
+-- Returns the WoW API correct type
+--
+function NB.validate_type_name(class)
+
+	local api_type = ""
+	for k,v in pairs(NB.VALIDTYPES) do if k == class then api_type = v break end end
+	return string.lower(api_type)
 
 end
 

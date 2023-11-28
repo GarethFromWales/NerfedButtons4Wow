@@ -52,7 +52,9 @@ NB.VALIDCHECKS = {
 	["mod"] = "modifier", 
 	["modifier"] = "modifier",
 	["m"] = "mana",	
-	["mana"] = "mana"
+	["mana"] = "mana",
+	["t"] = "type",	
+	["type"] = "type"	
 }
 
 -- list of valid targets, long and short forms
@@ -82,6 +84,36 @@ NB.VALIDCHECKTARGETS = {
 	["target"] = "target",
 	["s"] = "smart",
 	["smart"] = "smart"
+}
+
+-- list of valid classes, long and short forms
+NB.VALIDTYPES = {
+	["b"] = "Beast",
+	["beast"] = "Beast",
+	["dr"] = "Dragonkin",
+	["dragonkin"] = "Dragonkin",
+	["d"] = "Demon",
+	["demon"] = "Demon",
+	["e"] = "Elemental",	
+	["Elemental"] = "Elemental",
+	["g"] = "Giant",
+	["giant"] = "Giant",
+	["u"] = "Undead",	
+	["undead"] = "Undead",
+	["h"] = "Humanoid",	
+	["humanoid"] = "Humanoid",
+	["c"] = "Critter",	
+	["critter"] = "Critter",	
+	["m"] = "Mechanical",	
+	["mechanical"] = "Mechanical",
+	["ns"] = "Not specified",		
+	["not specified"] = "Not specified",	
+	["t"] = "Totem",	
+	["Totem"] = "Totem",
+	["ncp"] = "Non-combat Pet",			
+	["non-combat Pet"] = "Non-combat Pet",		
+	["gc"] = "Gas Cloud",
+	["Gas Cloud"] = "Gas Cloud"		
 }
 
 -- list of valid classes, long and short forms

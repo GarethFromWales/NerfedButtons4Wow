@@ -234,6 +234,48 @@ end
 
 
 -----------------------------------------
+-- Check: Type
+--
+function NB.check_type(unit, operator, typeName)
+    if not typeName or not unit then
+        return false;
+    end
+    typeName = NB.validate_type_name(typeName)
+
+    if  operator ~= "!" and operator ~= "=" then
+        NB.error("Invalid operator passed to type check, only = and ! are allowed.")
+        return false
+    end    
+
+    -- do we have a valid type?
+    local apitype = NB.validate_type_name(typeName)
+    if not apitype then
+        NB.error("Invalid type passed to check *"..typeName.."*")
+        return false
+    end
+
+    local gottype = false
+    local actual_type = UnitCreatureType(unit) 
+    if string.lower(typeName) == string.lower(actual_type) then
+        gottype = true
+    else
+        gottype = false
+    end
+
+    -- finally use the operator to decide on true/false  
+    if operator == "=" and gottype == true then
+        return true
+    end
+    if operator == "!" and gottype == false then
+        return true
+    end    
+    
+    return false;
+end
+
+
+
+-----------------------------------------
 -- Check: Class
 --
 function NB.check_class(unit, operator, className)

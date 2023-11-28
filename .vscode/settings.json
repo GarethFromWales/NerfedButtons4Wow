@@ -54,6 +54,7 @@
         "IsAltKeyDown",
         "GetAddOnInfo",
         "GetPartyMembers",
-        "GetRaidMembers"
+        "GetRaidMembers",
+        "UnitCreatureType"
     ]
 }
