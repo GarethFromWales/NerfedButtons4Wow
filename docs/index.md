@@ -245,7 +245,7 @@ Here is the NB I use to enter Prowl on my druid. It may seem a little complex...
 /nb Cat Form [form@player!Cat Form]
 /nb Prowl [buff@player!Prowl]
 /nb cancel@Prowl [cooldown@player>3Prowl]
-/nb Track Humanoids@player [buff@player!Track Humanoids][form@player=Cat Form]
+/nb Track Humanoids@player [buff@player!Track Humanoids,form@player=Cat Form]
 ```
 
 This is what it does:
@@ -264,7 +264,7 @@ The shorthand version is:
 /nb cf [f@p!cf]
 /nb prow [b@p!prow]
 /nb can@prow [cd@p>3prow]
-/nb th@p [b@p!th][f@p=cf]
+/nb th@p [b@p!th,f@p=cf]
 ```
 
 ### Once button druid self care
@@ -365,7 +365,7 @@ Actions are either spelled out in full or abbreviated:
   * `focus`  (`f`) - cast on your focus target
 
   ```
-  /nb [Rejuvenation:focus][health:focus:<90]
+  /nb [Rejuvenation:focus,health:focus:<90]
   /nb [Wrath:target]
   ```
 
@@ -381,8 +381,8 @@ Actions are either spelled out in full or abbreviated:
   always use the word smart (or 's') for the target of your checks when using smart targetting:
 
   ```
-  /nb [Cure Poison:group][con:smart:poison]
-  /nb [Remove Curse:group][con:smart:curse]
+  /nb [Cure Poison:group,con:smart:poison]
+  /nb [Remove Curse:group,con:smart:curse]
   ```
 
 ## Checks
