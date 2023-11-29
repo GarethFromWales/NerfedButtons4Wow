@@ -839,14 +839,14 @@ Powershift with Greater Healing Potion use if shift held down, normal PS if not 
 /script if nil then CastSpellByName("Moonfire"); end
 /nb Moonfire@target [buff@target!Moonfire]
 /nb Insect Swarm@target [buff@target!Insect Swarm]
-/nb Weath@
+/nb Wrath@
 ```
 shorthand:
 ```
 /script if nil then CastSpellByName("Moonfire"); end
 /nb moon@t [b@t!moon]
 /nb is@t [b@t!is]
-/nb Weath@
+/nb wrat@
 ```
 
 #### Bear Form and Bash
