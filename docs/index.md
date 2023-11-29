@@ -4,28 +4,33 @@ NerfedButtons (NB) lets you define prioritised and conditional spell/ability/ite
 * Want to stimulate your brain as well as your reflexes?
 * Are you a casual player who wants a chance against those 12 fingered mutants who fluidly play whack-a-mole with 48 buttons 24 hours a day?
 
-If any of the above apply, NerfedButtons may be what you are looking for! :+1:
+If any of the above apply, NerfedButtons may be what you are looking for!
 
 Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exercise of a few brain cells, you have been warned...
 
-An offline copy of this document can be found in the addon /docs folder in .md format.
+*An offline copy of this document can be found in the NerfedButtons4WoW addon /docs folder (in .md format).*
 
-## Here's some simple examples
+## Simple examples
+Here are some simple examples to whet your appetitite...
+
+#### Druid 1-button Decurse
+Scans your group for anyone with poison/curse and sorts it out one buttons press.
+
+*Note: `group` and `raid` are special NB targets that dont target a single unit (like `player` or `target`) but will scan through everyone in the group/raid to find the first member that passes all the checks. Checks should have a target of `smart` or `s` if you want to test against the scanned raid/group members.*
+```
+/run if nil then CastSpellByName("Abolish Poison") end
+/nb Abolish Poison@group [buff@smart!Abolish Poison,con@smart=poison]
+/nb Remove Curse@group [con@smart=curse]
+```
 
 #### Powershift with consumable use
-Double-press and includes spam protection in case you hit the button a 3rd time in succession.
+Double-click quickly, includes spam protection in case you hit the button a 3r3rd/4th time quickly in succession.
 ```
 /nb powershift@Greater Healing Potion
 ```
-
-### Druid 1-button Decurse
-Scans your group for anyone with poison/curse and sorts it out one buttons press.
-
-*Note: `group` and `raid` are special smart targets that dont target a specific unit but will scan through everyone to find the first match against any checks. Checks should have a target of `smart` or `s` if you want to test against the scanned raid/group members.*
+add a mana check to it so you don't shift out when lwo on mana?
 ```
-/run if nil then CastSpellByName("Abolish Poison") end
-/nb Abolish Poison@group [buff@smart!Abolish Poison,condition@smart=poison]
-/nb Remove Curse@group [condition@smart=curse]
+/nb powershift@Greater Healing Potion [mana@player>10%]
 ```
 
 ### Rejuvenation and Regrowth with self-cast modifier
@@ -50,14 +55,14 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 
 1. Disable SuperMacros addon if you have it installed. SuperMacros has an issue with caaching of macros which make it really difficult to work out what macro code you are actually running at any time. Best to disable it if you plan to us NerfedButtons, at least for the time being until I can work out a fix.
 1. Download the latest source zip file from (https://github.com/GarethFromWales/NerfedButtons4Wow/releases/latest)
-1. Open the zip file and drag the folder NerfedButtons4Wow-1.3 to your TurtleWow/Interface/Addons folder
+1. Open the zip file and drag the folder NerfedButtons4Wow-1.X to your TurtleWow/Interface/Addons folder
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
 1. Restart Turtle WoW
 
 
 ## Latest News
 
-1. Group and Raid smart targeting now works. :smile:
+1. Group and Raid smart targeting now works:
 
     Keep Rejuvenation up on all group members with:
 
@@ -71,6 +76,8 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
     
     `/nb Moonberry Juice@player [buff@player!Drink]`
 
+1. Added much more detail to the checks section of this document.
+
 1. Internal spell, action and item database to allow abbreviated actions now update on learning new spells and obtaining new items.
 
 1. New mana check for druids (everyone else can use the power check). Requires DruidManaBar addon to function. No point remaking the wheel and every druid needs the addon anyway.
@@ -78,7 +85,6 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 ## Issues and Limitations
 
 1. Doesn't play nicely with SuperMacros.
-1. Smart targetting partly working, still needs work. Added example to the Druids section at the end of the documenation.
 
 ## Your first few NerfedButtons
 
@@ -86,7 +92,7 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 
 NBs are written as macros. Unlike the Warhammer Online version of NB, there is no graphical user interface, everything must be done via macros (for now at least).
 
-The simplest NB would be one that simply attempts to cast a sequence of spells if they are off cooldown. NB performs basic checks like cooldown, range and positioning (think rogue's Backstab) automatically for you, so you don't need to specify such checks in your NBs. Here is a simple exmaple of such a sequence:
+The simplest NB would be one that simply attempts to cast a sequence of spells if they are off cooldown. NB performs basic checks like cooldown, range and positioning (think rogue's Backstab) automatically for you, so you don't need to specify such checks in your NBs. Here is a simple example of such a sequence:
 
 ```
 /run if nil then CastSpellByName("Flame Shock") end
@@ -96,7 +102,7 @@ The simplest NB would be one that simply attempts to cast a sequence of spells i
 
 this will first attempt to cast `Flame Shock` at your current target, but if for some reason it cannot be cast (it has a 6 second cooldown), then will attempt to cast `Lightning Bolt`. Nice!
 
-The first line of the macro ```/run if nil then CastSpellByName("Flame Shock") end``` is unfortunately reuired for ALL macros to display and update an icon correctly in Vanilla WoW. Replace the spell/item name with whatever you want displayed on the icon.
+The first line of the macro `/run if nil then CastSpellByName("Flame Shock") end` is unfortunately reuired for ALL macros to display and update an icon correctly in Vanilla WoW. Replace the spell/item name with whatever you want displayed on the icon.
 
 ### Targetting
 
@@ -115,11 +121,19 @@ Valid targets for your spells/abilities include:
 
 Here are some examples:
 
-```/nb Mend Pet@pet``` and ```/nb Rejuvenation@player```.
+```
+/nb Mend Pet@pet
+```
+
+and
+
+```
+/nb Rejuvenation@player
+```
 
 ### NB Checks - Adding some intelligence
 
-So far so good, but Flame Shock is a DoT that lasts 12 seconds; it seems wasteful of mana to cast it every 6 seconds. We fix this by adding a ```debuff``` check to the NB that looks for the Flame Shock debuff on the target:
+So far so good, but Flame Shock is a DoT type spell (Damage over Time) that lasts 12 seconds; it seems wasteful of mana to cast it every 6 seconds. We fix this by adding a `debuff` check to the NB that looks for the Flame Shock debuff on the target:
 
 ```
 /run if nil then CastSpellByName("Flame Shock") end
@@ -127,11 +141,11 @@ So far so good, but Flame Shock is a DoT that lasts 12 seconds; it seems wastefu
 /nb Lightning Bolt@target
 ```
 
-*Note: the buff and debuff checks can be used interchangable, both check all buffs and debuffs, but you may want to specify ```debuff``` for debuffs and ```buff``` for buffs to improve clarity of your NBs*
+*Note: the buff and debuff checks can be used interchangable, both check all buffs and debuffs, but you may want to specify `debuff` for debuffs and `buff` for buffs to improve clarity of your NBs*
 
-The ```!``` in front of the Flame Shock inverts the check so that it only passes if Flame Shock is NOT on the target (you can use the `=` sign to check for the exitance of a buff/debuff). 
+The `!` in front of the Flame Shock inverts the check so that it only passes if Flame Shock is NOT on the target (you can use the `=` sign to check for the exitance of a buff/debuff). 
 
-We now have a NB that will Cast ```Flame Shock``` whenever the target does not have the debuff, otherwise it will cast ```Lightning Bolt```.
+We now have a NB that will Cast `Flame Shock` whenever the target does not have the debuff, otherwise it will cast `Lightning Bolt`.
 
 ### NB Shorthand !
 
@@ -139,7 +153,7 @@ Instead of having to type the full name of a spell/item/check/target you can abb
 1. If the spell is a single word long, then just provide the first 4 letters.
 2. If the spell is more than a single word, provide the first letter of each word.
 
-*In addition the targets and checks can also be shortening. 
+*In addition, the `target` and `check` can also be shortened. 
 See the API in the next section that  details each and every check and its long and short forms.*
 
 For example:
@@ -194,7 +208,7 @@ or in its shorthand form:
 
 ### Smart Decurse
 
-And here is an example of  ```smart``` targeting cure conditions on party members if they are inflicted. There is no fixed target for this NB, the target is calculated at runtime by whomever passes the checks first. The first party member that matches the checks is Cured/Cleansed. Such NBs can be used to keep the raid relatively clean of debuffs or heal the raid member with the lowest health, there are lots of possibilities.
+And here is an example of  `smart` targeting cure conditions on party members if they are inflicted. There is no fixed target for this NB, the target is calculated at runtime by whomever passes the checks first. The first party member that matches the checks is Cured/Cleansed. Such NBs can be used to keep the raid relatively clean of debuffs or heal the raid member with the lowest health, there are lots of possibilities.
 
 ```
 /run if nil then CastSpellByName("Cure Poison") end
@@ -202,7 +216,7 @@ And here is an example of  ```smart``` targeting cure conditions on party member
 /nb Remove Curse@group [condition@smart=curse]
 ```
 
-This could be improved to use Abolish Poison that auto cleanses Poisons for 8 seconds. We just need to check for the Abolish Poison buff.
+This could be improved to use Abolish Poison that auto cleanses Poisons for 8 seconds. We just need to check for the Abolish Poison buff so it isn't reapplied if already applied.
 
 ```
 /run if nil then CastSpellByName("Abolish Poison") end
@@ -220,14 +234,14 @@ or in its shorthand form:
 
 ### Powershifting and Special Actions
 
-In addiion to casting spells, and using abilities and items, NB supports a number of special actions, one of which is the ```powershift``` action. This action:
+In addiion to casting spells, and using abilities and items, NB supports a number of special actions, one of which is the `powershift` action. This action:
 1. simplifies powershifting for druids, will always return you to whatever form you were previously in.
 1. makes it easy to use a consumable mid-shift
 1. Spam protection to stop you from leaving form again if you spam the button too many times.
 
 You still however need to spam the button twice to complete a full powershift, there is no 1-button solution in Vanilla WoW.
 
-```/nb powershift``` or ```/nb ps``` is the most basic form, but you can combine consumable usage as follows:
+`/nb powershift` or `/nb ps` is the most basic form, but you can combine consumable usage as follows:
 
 ```
 /run if nil then CastSpellByName("Travel Form") end
@@ -287,13 +301,15 @@ Here is a one button macro I use for my druid to simplify buffing and healing wh
 /nb motw@p [b@p!mark]
 ```
 
-
-
 ### Summary
 
 Hopefully by now you've seen some of the posibilities of NB and are considering how you can use it to improve your play, be it PVE or PVP. Writing this addon has taken me away from levelling my main for at least 8 hours, so please say thank you if you like the addon and see Tempeh my Tauren Druid in-game on the Turtle WoW PVP realm :)
 
 The remainder of the documenation covers the syntax and available options in more detail. Use it as a reference manual when creating your NBs. Good luck! :four_leaf_clover:
+
+
+---
+
 
 # NerfedButtons Cheat Sheet
 
@@ -370,8 +386,8 @@ Actions are either spelled out in full or abbreviated:
   * `focus`  (`f`) - cast on your focus target
 
   ```
-  /nb [Rejuvenation:focus,health:focus:<90]
-  /nb [Wrath:target]
+  /nb [Rejuvenation@focus,health@focus<90]
+  /nb [Wrath@target]
   ```
 
 #### Smart action targets
@@ -383,11 +399,11 @@ Actions are either spelled out in full or abbreviated:
 
   Note: group and raid will cause NB to scan all the members and perform checks again everyone with a single button press. It's a  bit like magic!
 
-  always use the word smart (or 's') for the target of your checks when using smart targetting:
+    !! always use the word smart (or 's') for the target of your checks when using smart targetting !!
 
   ```
-  /nb [Cure Poison:group,con:smart:poison]
-  /nb [Remove Curse:group,con:smart:curse]
+  /nb [Cure Poison@group,con@smart=poison]
+  /nb [Remove Curse@group,con@smart=curse]
   ```
 
 ## Checks
@@ -398,121 +414,195 @@ NB comes with a variety of useful checks but more will be developed over time. H
 
 Note that many of the checks require a check_target, this can be same or different to the arction_target.
 
-##### `buff` (`b`) - Buff
- * check for a buff or debuff on the check_target.
- * `buff` (`b`) - check for a buff or debuff on the check_target.
+##### buff (b) - Buff
+* `buff` (`b`) - check for a buff or debuff on the check_target. Commonly used to check for a HoT or DoT on a target to avoid overwriting it, but I'm sure people will come up with other uses.
+* Operator can be `=`, or `!`.
 
-##### `debuff` (`d`) - Debuff
- * Alias for buff, check for a buff or debuff on the check_target.
+Example:
+```
+/nb [Rejuvenation@player,buff@player!Rejuvenation]
+```
+Example in shorthand:
+```
+/nb [reju@p,b@p!reju]
+```   
 
-##### `class` (`cl`) - Class
- * checks the class of the check_target.
+##### debuff (d) - Debuff
+* `debuff` (`d`) - Alias for buff, check for a buff or debuff on the check_target.
+* Operator can be `=`, or `!`.
+
+Example:
+```
+/nb [Moonfire@target,debuff@target!Moonfire]
+``` 
+Example in shorthand:
+```
+/nb [moon@t,d@t!moon]
+```   
+
+##### class (cl) - Class
+* `class` (`cl`) - checks the class of the check_target.
+* Operator can be `=`, or `!`.
 
 Class list:
-  ```
-  ["war"] = "warrior",
-  ["warior"] = "warrior",
-  ["dru"] = "druid",	
-  ["druid"] = "druid",
-  ["pal"] = "paladin",
-  ["paladin"] = "paladin",
-  ["pri"] = "priest",
-  ["priest"] = "priest",	
-  ["hun"] = "hunter",
-  ["hunter"] = "hunter",	
-  ["sha"] = "shaman",
-  ["shaman"] = "shaman",		
-  ["loc"] = "warlock",
-  ["warlock"] = "warlock",
-  ["mag"] = "mage",
-  ["mage"] = "mage",		
-  ["rog"] = "rogue",
-  ["rogue"] = "rogue"	
-  ```
+```
+["war"] = "warrior",
+["warior"] = "warrior",
+["dru"] = "druid",	
+["druid"] = "druid",
+["pal"] = "paladin",
+["paladin"] = "paladin",
+["pri"] = "priest",
+["priest"] = "priest",	
+["hun"] = "hunter",
+["hunter"] = "hunter",	
+["sha"] = "shaman",
+["shaman"] = "shaman",		
+["loc"] = "warlock",
+["warlock"] = "warlock",
+["mag"] = "mage",
+["mage"] = "mage",		
+["rog"] = "rogue",
+["rogue"] = "rogue"	
+```
 
-##### `type` (`t`) - Type
- * checks the type of mob targetted.
+##### type (t) - Type
+* `type` (`t`) - checks the type of mob targetted.
+* Operator can be `=`, or `!`.
+
+Example: Don't use Rip against Elementals (who cannot bleed).
+```
+/run if nil then CastSpellByName("Claw") end
+/nb attack
+/nb rip@t [combo@target>3,health@target>50,type@target!elemental]
+/nb Ferocious Bite@target [combo@target>2]
+/nb claw@target
+/nb fff@t [debuff@target!ff]
+```
+
+Example in shorthand (just the rip line):
+```
+/nb rip@t [com@t>3,h@t>50,t@t!e]
+```  
 
 Type list:
-  ```
-  ["b"] = "Beast",
-  ["beast"] = "Beast",
-  ["dr"] = "Dragonkin",
-  ["dragonkin"] = "Dragonkin",
-  ["d"] = "Demon",
-  ["demon"] = "Demon",
-  ["e"] = "Elemental",	
-  ["Elemental"] = "Elemental",
-  ["g"] = "Giant",
-  ["giant"] = "Giant",
-  ["u"] = "Undead",	
-  ["undead"] = "Undead",
-  ["h"] = "Humanoid",	
-  ["humanoid"] = "Humanoid",
-  ["c"] = "Critter",	
-  ["critter"] = "Critter",	
-  ["m"] = "Mechanical",	
-  ["mechanical"] = "Mechanical",
-  ["ns"] = "Not specified",		
-  ["not specified"] = "Not specified",	
-  ["t"] = "Totem",	
-  ["Totem"] = "Totem",
-  ["ncp"] = "Non-combat Pet",			
-  ["non-combat Pet"] = "Non-combat Pet",		
-  ["gc"] = "Gas Cloud",
-  ["Gas Cloud"] = "Gas Cloud"	
-  ```
+```
+["b"] = "Beast",
+["beast"] = "Beast",
+["dr"] = "Dragonkin",
+["dragonkin"] = "Dragonkin",
+["d"] = "Demon",
+["demon"] = "Demon",
+["e"] = "Elemental",	
+["Elemental"] = "Elemental",
+["g"] = "Giant",
+["giant"] = "Giant",
+["u"] = "Undead",	
+["undead"] = "Undead",
+["h"] = "Humanoid",	
+["humanoid"] = "Humanoid",
+["c"] = "Critter",	
+["critter"] = "Critter",	
+["m"] = "Mechanical",	
+["mechanical"] = "Mechanical",
+["ns"] = "Not specified",		
+["not specified"] = "Not specified",	
+["t"] = "Totem",	
+["Totem"] = "Totem",
+["ncp"] = "Non-combat Pet",			
+["non-combat Pet"] = "Non-combat Pet",		
+["gc"] = "Gas Cloud",
+["Gas Cloud"] = "Gas Cloud"	
+```
 
-##### `health`(`h`) - Health
- * checks the health of the check_target. Append % to the value to check percentage of health.
+##### health (h) - Health
+* `health` (`h`) - checks the health of the check_target. Append % to the value to check percentage of health. 
+* Operator can be `=`, `!`, `>`  or `<`.
 
-##### `power`(`p`) - Power
- * `power`(`p`) - checks the power (mana/rage/energy) of the check_target. Append % to the value to check percentage of power.
+Example: 
+```
+/run if nil then CastSpellByName("Healing Touch") end
+/nb Healing Touch@player [health@player<50]
+```
+Example in shorthand:
+```
+/run if nil then CastSpellByName("Healing Touch") end
+/nb ht@p [h@p<50]
+```
 
- ##### `mana`(`m`) - Mana
- * `mana`(`m`) - same as power check for all classes apart from druids. For druids always checks the mana even when in forms. Append % to the value to check percentage of mana.
+##### power(p) - Power
+* `power` (`p`) - checks the power (mana/rage/energy) of the check_target. Append % to the value to check percentage of power.
+* Operator can be `=`, `!`, `>`  or `<`.
 
-##### `form`(`f`) - Form
- * checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
+Example: 
+```
+/run if nil then CastSpellByName("Tiger's Fury") end
+/nb Tiger's Fury@player [power@player>20,power@player>30]
+```
+Example in shorthand:
+```
+/run if nil then CastSpellByName("Tiger's Fury") end
+/nb TF@p [p@p>20,p@p>30]
+```
 
-  Example: Switches to Dire Bear Form if you are not already in bear form.
-  ```
-  /nb dbf [f@p!bear]
-  ```
+ ##### mana (m) - Mana
+* `mana` (`m`) - same as power check for all classes apart from druids. For druids always checks the mana even when in forms. Append % to the value to check percentage of mana.
+* Operator can be `=`, `!`, `>`  or `<`.
 
-  Form list:
-  ```
-  ["b"] = "bear",
-  ["bear"] = "bear",
-  ["Bear Form"] = "bear",
-  ["Dire Bear Form"] = "bear",
-  ["a"] = "aquatic",
-  ["aquatic"] = "aquatic",
-  ["Aquatic Form"] = "aquatic",	
-  ["c"] = "cat",	
-  ["cat"] = "cat",
-  ["Cat Form"] = "cat",	
-  ["t"] = "travel",	
-  ["travel"] = "travel",
-  ["Travel Form"] = "travel",	
-  ["m"] = "moonkin",
-  ["moonkin"] = "moonkin",
-  ["Moonkin Form"] = "moonkin",	
-  ["n"] = "humanoid",
-  ["no"] = "humanoid",
-  ["none"] = "humanoid",			
-  ["h"] = "humanoid",
-  ["humanoid"] = "humanoid"
-  ```
+See `power` check for examples, works exactly the same.
 
-##### `condition`(`con`) - Condition
- * checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
+##### form (f) - Form
+* `form` (`f`) - checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
+* Operator can be `=` or `!`.
 
-  For example:
+Example: Switches to Dire Bear Form if you are not already in bear form.
+```
+/nb Dire Bear Form[form@player!Dire Bear Form]
+```
+Example in shorthand:
+```
+/nb dbf [f@p!b]
+```
+
+Form list:
+```
+["b"] = "bear",
+["bear"] = "bear",
+["Bear Form"] = "bear",
+["Dire Bear Form"] = "bear",
+["a"] = "aquatic",
+["aquatic"] = "aquatic",
+["Aquatic Form"] = "aquatic",	
+["c"] = "cat",	
+["cat"] = "cat",
+["Cat Form"] = "cat",	
+["t"] = "travel",	
+["travel"] = "travel",
+["Travel Form"] = "travel",	
+["m"] = "moonkin",
+["moonkin"] = "moonkin",
+["Moonkin Form"] = "moonkin",	
+["n"] = "humanoid",
+["no"] = "humanoid",
+["none"] = "humanoid",			
+["h"] = "humanoid",
+["humanoid"] = "humanoid"
+```
+
+##### condition (con) - Condition
+* `condition` (`con`) - checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
+* Operator can be `=` or `!`.
+
+  Example:
 
   ```
   /nb Cure Poison@target [con@target=poison]
   ```
+  Example in shorthand:
+
+  ```
+  /nb cp@t [con@t=p]
+  ```   
 
   Condition list:
   ```
@@ -526,42 +616,88 @@ Type list:
   ["disease"] = "disease" 
   ```
 
-##### `combo`(`cp`) - Combo
- * checks the combo points of the check_target. Unlike Classic, in Vanilla you lose combo points on your target if you switch target, therefore the check_target should always be `target` for this check and nothing else makes sense.
+##### combo (cp) - Combo
+* `combo` (`cp`) - checks the combo points of the check_target. Unlike Classic, in Vanilla you lose combo points on your target if you switch target, therefore the check_target should always be `target` for this check and nothing else makes sense.
+* Operator can be `=`, `!`, `>`  or `<`.
 
-##### `combat`(`com`)  - Combat
- * - checks whether the check_target is in combat.
-  ```
-  /nb Rejuvenation@player [combat@player=1]
-  /nb Regrowth@player [combat@player!1]
-  ```
+Example: 
+```
+/run if nil then CastSpellByName("Claw") end
+/nb attack
+/nb Ferocious Bite@target [combo@target>2]
+/nb claw@target
+```
 
-##### `cooldown`(`cd`)  - Cooldown
- * checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
+##### combat(com)  - Combat
+* `combat` (`com`)  - checks whether the check_target is in combat.
+* Operator can be `=` or `!`.
 
+Example:
+```
+/nb Rejuvenation@player [combat@player=1]
+/nb Regrowth@player [combat@player!1]
+```
 
-##### `modifier`(`mod`) - Modifier Key
- * checks if `shift`(`s`)/`alt`(`a`)/`ctrl`(`c`) are held down: 
-  ```
-  /nb Regrowth@target [mod!shift]
-  /nb Regrowth@player [mod=shift]
-  ```
+```
+/nb Rejuvenation@player [combat@player=1]
+/nb Regrowth@player [combat@player!1]
+```
 
-  Modifier list:
-  ```
-  ["s"] = "shift",
-  ["shift"] = "shift",
-  ["a"] = "alt",
-  ["alt"] = "alt",
-  ["c"] = "ctrl",
-  ["ctrl"] = "ctrl",
-  ```
+##### cooldown (cd)  - (Fake) Cooldown
+* `cooldown` (`cd`)  - checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
+* Operator can be `>`  or `<`.
+
+Example that provides a button to enter Cat Form and Prowl, bt also using the fake cooldown check stop you from exiting Prowl if you mistakenly press the button a 3rd time within 3 seconds. Pressing the button after 3 seconds will exit you from prowling.
+```
+/run if nil then CastSpellByName("Prowl") end
+/nb cf [f@p!cat]
+/nb prow [b@p!Prowl]
+/nb cancel@Prowl [cd@player>3Prowl]
+```
+
+##### modifier (mod) - Modifier Key
+* `modifier` (`mod`) - checks if `shift`(`s`)/`alt`(`a`)/`ctrl`(`c`) are held down.
+* Operator can be `=` or `!`.
+
+Example:
+```
+/nb Regrowth@target [mod!shift]
+/nb Regrowth@player [mod=shift]
+```
+Example in shorthand:
+```
+/nb regr@t [m!s]
+/nb regr@b [m=s]
+```
+
+Modifier list:
+```
+["s"] = "shift",
+["shift"] = "shift",
+["a"] = "alt",
+["alt"] = "alt",
+["c"] = "ctrl",
+["ctrl"] = "ctrl",
+```
 
 ### <Check_Target>
 
-  * `player` (`p`) - you the player. Defaults to player if you don't pass a target.
-  * `target` (`t`) - your current target.
-  * `smart` (`s`) - a smart target (used when the action target is set to group or raid).
+Each check has a target. The valid values are:
+
+* `player` (`p`) - you the player. Defaults to player if you don't pass a target.
+* `target` (`t`) - your current target.
+* `smart` (`s`) - a smart target (used when the action target is set to group or raid).
+
+### <Check_Operator>
+
+Each check has a modifier. The valid values are:
+
+* `>` - Greater than
+* `<` - Less thank
+* `=` - equals
+* `!` - not equals
+
+Some checks accept all of these operators, others only a subset.
 
 ### <Check_Value>
 
