@@ -18,18 +18,14 @@ Double-press and includes spam protection in case you hit the button a 3rd time 
 /nb powershift@Greater Healing Potion
 ```
 
-### Group Buff/Cure Poison & Curse/Heal All-in-one!
-Scans your group for anyone with poison/curse/needs buff/needs heals, sort it out with one buttons press.
-*Note: For flexibility of use, if you are not in a group, falls-back to using you as the target.*
+### Druid 1-button Decurse
+Scans your group for anyone with poison/curse and sorts it out one buttons press.
+
+*Note: `group` and `raid` are special smart targets that dont target a specific unit but will scan through everyone to find the first match against any checks. Checks should have a target of `smart` or `s` if you want to test against the scanned raid/group members.*
 ```
-/run if nil then CastSpellByName("Rejuvenation") end
-/nb ap@g [b@s!ap,con@s=p]
-/nb rc@g [con@s=c]
-/nb ht@g [h@s<60%]
-/nb Regr@g [b@s!Regr,h@s<80%]
-/nb thor@g [b@s!Thor,com@s!]
-/nb motw@g [b@s!mark,com@s!]
-/nb Reju@g [b@s!Reju,h@s<95%]
+/run if nil then CastSpellByName("Abolish Poison") end
+/nb Abolish Poison@group [buff@smart!Abolish Poison,condition@smart=poison]
+/nb Remove Curse@group [condition@smart=curse]
 ```
 
 ### Rejuvenation and Regrowth with self-cast modifier
@@ -61,7 +57,7 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 
 ## Latest News - version 1.5
 
-1. Group and Raid smart targeting now works. :smiley:
+1. Group and Raid smart targeting now works. :smile:
 
     Keep Rejuvenation up on all group members with:
 
@@ -297,7 +293,7 @@ Here is a one button macro I use for my druid to simplify buffing and healing wh
 
 Hopefully by now you've seen some of the posibilities of NB and are considering how you can use it to improve your play, be it PVE or PVP. Writing this addon has taken me away from levelling my main for at least 8 hours, so please say thank you if you like the addon and see Tempeh my Tauren Druid in-game on the Turtle WoW PVP realm :)
 
-The remainder of the documenation covers the syntax and available options in more detail. Use it as a reference manual when creating your NBs. Good luck!
+The remainder of the documenation covers the syntax and available options in more detail. Use it as a reference manual when creating your NBs. Good luck! :four_leaf_clover:
 
 # NerfedButtons Cheat Sheet
 
@@ -412,6 +408,61 @@ Note that many of the checks require a check_target, this can be same or differe
 ##### `class` (`cl`) - Class
  * checks the class of the check_target.
 
+Class list:
+  ```
+  ["war"] = "warrior",
+  ["warior"] = "warrior",
+  ["dru"] = "druid",	
+  ["druid"] = "druid",
+  ["pal"] = "paladin",
+  ["paladin"] = "paladin",
+  ["pri"] = "priest",
+  ["priest"] = "priest",	
+  ["hun"] = "hunter",
+  ["hunter"] = "hunter",	
+  ["sha"] = "shaman",
+  ["shaman"] = "shaman",		
+  ["loc"] = "warlock",
+  ["warlock"] = "warlock",
+  ["mag"] = "mage",
+  ["mage"] = "mage",		
+  ["rog"] = "rogue",
+  ["rogue"] = "rogue"	
+  ```
+
+##### `type` (`t`) - Type
+ * checks the type of mob targetted.
+
+Type list:
+  ```
+  ["b"] = "Beast",
+  ["beast"] = "Beast",
+  ["dr"] = "Dragonkin",
+  ["dragonkin"] = "Dragonkin",
+  ["d"] = "Demon",
+  ["demon"] = "Demon",
+  ["e"] = "Elemental",	
+  ["Elemental"] = "Elemental",
+  ["g"] = "Giant",
+  ["giant"] = "Giant",
+  ["u"] = "Undead",	
+  ["undead"] = "Undead",
+  ["h"] = "Humanoid",	
+  ["humanoid"] = "Humanoid",
+  ["c"] = "Critter",	
+  ["critter"] = "Critter",	
+  ["m"] = "Mechanical",	
+  ["mechanical"] = "Mechanical",
+  ["ns"] = "Not specified",		
+  ["not specified"] = "Not specified",	
+  ["t"] = "Totem",	
+  ["Totem"] = "Totem",
+  ["ncp"] = "Non-combat Pet",			
+  ["non-combat Pet"] = "Non-combat Pet",		
+  ["gc"] = "Gas Cloud",
+  ["Gas Cloud"] = "Gas Cloud"	
+  ```
+
 ##### `health`(`h`) - Health
  * checks the health of the check_target. Append % to the value to check percentage of health.
 
@@ -424,6 +475,57 @@ Note that many of the checks require a check_target, this can be same or differe
 ##### `form`(`f`) - Form
  * checks the form of the check_target (cat,bear,moonkin,travel,aquatic,none).
 
+  Example: Switches to Dire Bear Form if you are not already in bear form.
+  ```
+  /nb dbf [f@p!bear]
+  ```
+
+  Form list:
+  ```
+  ["b"] = "bear",
+  ["bear"] = "bear",
+  ["Bear Form"] = "bear",
+  ["Dire Bear Form"] = "bear",
+  ["a"] = "aquatic",
+  ["aquatic"] = "aquatic",
+  ["Aquatic Form"] = "aquatic",	
+  ["c"] = "cat",	
+  ["cat"] = "cat",
+  ["Cat Form"] = "cat",	
+  ["t"] = "travel",	
+  ["travel"] = "travel",
+  ["Travel Form"] = "travel",	
+  ["m"] = "moonkin",
+  ["moonkin"] = "moonkin",
+  ["Moonkin Form"] = "moonkin",	
+  ["n"] = "humanoid",
+  ["no"] = "humanoid",
+  ["none"] = "humanoid",			
+  ["h"] = "humanoid",
+  ["humanoid"] = "humanoid"
+  ```
+
+##### `condition`(`con`) - Condition
+ * checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
+
+  For example:
+
+  ```
+  /nb Cure Poison@target [con@target=poison]
+  ```
+
+  Condition list:
+  ```
+  ["c"] = "curse",
+  ["curse"] = "curse",
+  ["p"] = "poison",
+  ["poison"] = "poison",
+  ["m"] = "magic",
+  ["magic"] = "magic",
+  ["d"] = "disease",
+  ["disease"] = "disease" 
+  ```
+
 ##### `combo`(`cp`) - Combo
  * checks the combo points of the check_target. Unlike Classic, in Vanilla you lose combo points on your target if you switch target, therefore the check_target should always be `target` for this check and nothing else makes sense.
 
@@ -432,23 +534,28 @@ Note that many of the checks require a check_target, this can be same or differe
   ```
   /nb Rejuvenation@player [combat@player=1]
   /nb Regrowth@player [combat@player!1]
-   ```
+  ```
 
 ##### `cooldown`(`cd`)  - Cooldown
  * checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
 
-##### `condition`(`con`) - Condition
- * checks if the check_target is suffering from any conditions (poison/curse/magic/disease):
-   ```
-   /nb Cure Poison@target [con@target=poison]
-   ```
 
 ##### `modifier`(`mod`) - Modifier Key
  * checks if `shift`(`s`)/`alt`(`a`)/`ctrl`(`c`) are held down: 
-   ```
-   /nb Regrowth@target [mod!shift]
-   /nb Regrowth@player [mod=shift]
-   ```
+  ```
+  /nb Regrowth@target [mod!shift]
+  /nb Regrowth@player [mod=shift]
+  ```
+
+  Modifier list:
+  ```
+  ["s"] = "shift",
+  ["shift"] = "shift",
+  ["a"] = "alt",
+  ["alt"] = "alt",
+  ["c"] = "ctrl",
+  ["ctrl"] = "ctrl",
+  ```
 
 ### <Check_Target>
 
@@ -497,19 +604,81 @@ Most of these are in shorthand format.
 /nb Fine Aged Cheddar@player [buff@player!Food]
 ```
 
+
 ## Druid
+I main a Druid so here are some examples of the NBs I make regular use of, have fun!
+
+#### Levelling with Claw, FB, Rip and FFF
+```
+/run if nil then CastSpellByName("Claw") end
+/nb attack
+/nb rip@t [combo@target>3,health@target>50,type@target!elemental]
+/nb Ferocious Bite@target [combo@target>2]
+/nb claw@target
+/nb fff@t [debuff@target!ff]
+```
+and in shorthand:
+```
+/run if nil then CastSpellByName("Claw") end
+/nb attack
+/nb rip@t [cp@t>3,h@t>70,t@t!e]
+/nb fb@t [cp@t>2]
+/nb claw@t
+/nb fff@t [d@t!ff]
+```
+
+### Nature's Grasp and Root in one
+
+Casts Nature's Grasp if you are moving (Entanglish Roots fails as it has a cast time). If you are in Bear Form will not shift you out of form, but will use NG in bear form (this may be a twow bug, but its a nice one). If you are not moving and in humanoid form then cast ER.
+
+```
+/script if nil then CastSpellByName("Entangling Roots"); end
+/nb Entangling Roots@target [form@player=none]
+/nb Nature's Grasp
+```
+and in shorthand:
+```
+/script if nil then CastSpellByName("Entangling Roots"); end
+/nb er@t [f@p=n]
+/nb ng
+```
+
+#### War Stomp and HoT
+Pretty self explanatory, casts Warstomp, then Regrowth, then Rejuvenation. Uses the buff check to stop you reapllying the HoTs until they fall off. If you start running straight after Warstomping, then Regrowth will fail as it has a cast time and spells with cast time cannot be cast whilst moving, but Rejuvenation will still cast. 
+```
+/run if nil then CastSpellByName("War Stomp") end
+/nb ws@p
+/nb regr@p [b@p!regr]
+/nb reju@p [b@p!reju]
+```
 
 #### Cast on target or self if shift is held down.
-
+```
+/run if nil then CastSpellByName("Regrowth") end
+/nb Regrowth@target [modifier!shift]
+/nb Regrowth@player [modifier=shift]
+```
+in shorthand:
 ```
 /run if nil then CastSpellByName("Regrowth") end
 /nb regr@t [m!s]
-/nb regr@t [m=s]
+/nb regr@p [m=s]
 ```
 
-#### Group Care
+#### Druid 1-button Decurse
+Scans your group for anyone with poison/curse and sorts it out one buttons press.
 
-Single button macro to decurse, heal, buff and everything for your group. Can be modified to raid very easily, just replace @g with @r.
+*Note: `group` and `raid` are special smart targets that dont target a specific unit but will scan through everyone to find the first match against any checks. Checks should have a target of `smart` or `s` if you want to test against the scanned raid/group members.*
+```
+/run if nil then CastSpellByName("Abolish Poison") end
+/nb Abolish Poison@group [buff@smart!Abolish Poison,condition@smart=poison]
+/nb Remove Curse@group [condition@smart=curse]
+```
+
+#### 1-button Self and Group Care
+This one is in shorthand as it's very long. Single button macro to decurse, heal, buff and everything for you and your group. Can be modified to raid very easily, just replace @g with @r.
+
+Thorns and MOTW will only be cast out of combat and thorns is cast on the player, not the whole group. 
 
 ```
 /run if nil then CastSpellByName("Rejuvenation") end
@@ -517,22 +686,72 @@ Single button macro to decurse, heal, buff and everything for your group. Can be
 /nb rc@g [con@s=c]
 /nb ht@g [h@s<60%]
 /nb Regr@g [b@s!Regr,h@s<80%]
-/nb thor@g [b@s!Thor,com@s!]
+/nb thor@p [b@p!Thor,com@s!]
 /nb motw@g [b@s!mark,com@s!]
 /nb Reju@g [b@s!Reju,h@s<95%]
 ```
 
-Powershift with Greater Healing Potion use if shift helf down, normal PS if not (double press with spam protection)
+#### Powershift with and without consumable
+Powershift with Greater Healing Potion use if shift held down, normal PS if not (double press with spam protection)
 ```
 /nb ps@ghp [mod@=s]
 /nb ps [mod!s]
 ```
 
-Scan group for anyone with poison/curse and cure them with one buttons press.
+#### Moonfire, Insect Swarm, Wrath
 ```
-/run if nil then CastSpellByName("Cure Poison") end
-/nb cp@group [con@s=p]
-/nb rc@group [con@s=c]
+/script if nil then CastSpellByName("Moonfire"); end
+/nb Moonfire@target [buff@target!Moonfire]
+/nb Insect Swarm@target [buff@target!Insect Swarm]
+/nb Weath@
+```
+shorthand:
+```
+/script if nil then CastSpellByName("Moonfire"); end
+/nb moon@t [b@t!moon]
+/nb is@t [b@t!is]
+/nb Weath@
+```
+
+#### Bear Form and Bash
+Puts you into Bear form if you are not in it, and then casts Bash (2 quick presses). Requires Furor talent to be useful and if you don't have Dire Bear Form, replace `dbf` with `bf`.
+
+Tip! When checking for a buff or debuff, you can either use the full name, abbreviated name, or just part of the name. So any of the following would work: `[f@p!Dire Bear Form]` or `[f@p!dbf]` or `[f@p!bear]`. If you choose to use part of a buff/debuff name, then choose something that seems unique compared to other buffs/debuffs or you'll run until trouble.
+```
+/run if nil then CastSpellByName("Bash") end
+/nb dbf [f@p!bear]
+/nb bash [f@p=bear]
+```
+
+#### Bear Form and Charge
+Another one that needs Furor, this time for Feral Charge (2 quick presses). This and the previous NB are really what makes Druid shapeshifting fluid and intuitive.
+```
+/run if nil then CastSpellByName("Feral Charge") end
+/nb dbf [f@p!bear]
+/nb fc@target [b@p=bear]
+```
+
+#### Enrage and remove Enrage debuff
+Simply uses Enrage and then on a second press removes it so you are not under the effects of the debuff. 
+```
+/run if nil then CastSpellByName("Enrage") end
+/nb enrage@p [b@p!enrage]
+/nb cancel@enrage
+```
+
+#### Autoattack and Maul
+When you enter bear form or switch targets you often don't have rage to start attacking with an ability like Maul, but need to start autoattacking in order to start building rage. You can use the `attack` action to do this.
+```
+/run if nil then CastSpellByName("Maul") end
+/nb attack
+/nb maul@t
+```
+
+#### Dash and Track Humanoids
+```
+/run if nil then CastSpellByName("Dash") end
+/nb dash
+/nb Track Humanoids@p [b@p!Track Humanoids]
 ```
 
 ## Mage
