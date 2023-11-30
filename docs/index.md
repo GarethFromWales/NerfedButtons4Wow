@@ -10,47 +10,6 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 
 *An offline copy of this document can be found in the NerfedButtons4WoW addon /docs folder (in .md format).*
 
-## Simple examples
-Here are some simple examples to whet your appetitite...
-
-#### Druid 1-button Decurse
-Scans your group for anyone with poison/curse and sorts it out one buttons press.
-
-*Note: `group` and `raid` are special NB targets that dont target a single unit (like `player` or `target`) but will scan through everyone in the group/raid to find the first member that passes all the checks. Checks should have a target of `smart` or `s` if you want to test against the scanned raid/group members.*
-```
-/run if nil then CastSpellByName("Abolish Poison") end
-/nb Abolish Poison@group [buff@smart!Abolish Poison,con@smart=poison]
-/nb Remove Curse@group [con@smart=curse]
-```
-
-#### Powershift with consumable use
-Double-click quickly, includes spam protection in case you hit the button a 3r3rd/4th time quickly in succession.
-```
-/nb powershift@Greater Healing Potion
-```
-add a mana check to it so you don't shift out when lwo on mana?
-```
-/nb powershift@Greater Healing Potion [mana@player>10%]
-```
-
-### Rejuvenation and Regrowth with self-cast modifier
-Rejuvenation on target if not buffed with it, then Regrowth on target (or on player if you hold down shift)
-```
-/nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
-/nb Rejuvenation@player [mod@player=shift,buff@player!Rejuvenation]
-/nb Regrowth@target [mod@target!shift]
-/nb Regrowth@player [mod@player=shift]
-```
-
-### Shorthand for super concise NBs!
-All of your NB macros can be reduced to shorthand. See the section on Shorthand later
-```
-/nb reju@t [m@t!s,b@t!reju]
-/nb reju@p [m@p=s,b@t!reju]
-/nb regr@t [m@t!s]
-/nb regr@p [m@p=s]
-```
-
 ## Installation
 
 1. Disable SuperMacros addon if you have it installed. SuperMacros has an issue with caaching of macros which make it really difficult to work out what macro code you are actually running at any time. Best to disable it if you plan to us NerfedButtons, at least for the time being until I can work out a fix.
@@ -60,9 +19,15 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 1. Restart Turtle WoW
 
 
+## Bugs and Enhancement Requests
+
+Issue list is here: https://github.com/GarethFromWales/NerfedButtons4Wow/issues
+
+Of note, smart targetting for group/raid has an issue with the current release, will prioritise fixing is.
+
 ## Latest News
 
-1. Group and Raid smart targeting now works:
+1. Group and Raid smart targeting added but has issues (works fine when duoing) :
 
     Keep Rejuvenation up on all group members with:
 
@@ -103,6 +68,47 @@ The simplest NB would be one that simply attempts to cast a sequence of spells i
 this will first attempt to cast `Flame Shock` at your current target, but if for some reason it cannot be cast (it has a 6 second cooldown), then will attempt to cast `Lightning Bolt`. Nice!
 
 The first line of the macro `/run if nil then CastSpellByName("Flame Shock") end` is unfortunately reuired for ALL macros to display and update an icon correctly in Vanilla WoW. Replace the spell/item name with whatever you want displayed on the icon.
+
+## Simple examples
+Here are some simple examples to whet your appetitite...
+
+#### Druid 1-button Decurse
+Scans your group for anyone with poison/curse and sorts it out one buttons press.
+
+*Note: `group` and `raid` are special NB targets that dont target a single unit (like `player` or `target`) but will scan through everyone in the group/raid to find the first member that passes all the checks. Checks should have a target of `smart` or `s` if you want to test against the scanned raid/group members.*
+```
+/run if nil then CastSpellByName("Abolish Poison") end
+/nb Abolish Poison@group [buff@smart!Abolish Poison,con@smart=poison]
+/nb Remove Curse@group [con@smart=curse]
+```
+
+#### Powershift with consumable use
+Double-click quickly, includes spam protection in case you hit the button a 3r3rd/4th time quickly in succession.
+```
+/nb powershift@Greater Healing Potion
+```
+add a mana check to it so you don't shift out when lwo on mana?
+```
+/nb powershift@Greater Healing Potion [mana@player>10%]
+```
+
+### Rejuvenation and Regrowth with self-cast modifier
+Rejuvenation on target if not buffed with it, then Regrowth on target (or on player if you hold down shift)
+```
+/nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
+/nb Rejuvenation@player [mod@player=shift,buff@player!Rejuvenation]
+/nb Regrowth@target [mod@target!shift]
+/nb Regrowth@player [mod@player=shift]
+```
+
+### Shorthand for super concise NBs!
+All of your NB macros can be reduced to shorthand. See the section on Shorthand later
+```
+/nb reju@t [m@t!s,b@t!reju]
+/nb reju@p [m@p=s,b@t!reju]
+/nb regr@t [m@t!s]
+/nb regr@p [m@p=s]
+```
 
 ### Targetting
 
