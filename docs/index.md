@@ -18,12 +18,12 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
 1. Restart Turtle WoW
 
+2. ## Issues and Limitations
 
-## Bugs and Enhancement Requests
+1. Doesn't play nicely with SuperMacros, will work on this in future.
+1. Smart targetting for group/raid has an issue with the current release, will prioritise fixing is.
 
-Issue list is here: https://github.com/GarethFromWales/NerfedButtons4Wow/issues
-
-Of note, smart targetting for group/raid has an issue with the current release, will prioritise fixing is.
+    Issue list is here: https://github.com/GarethFromWales/NerfedButtons4Wow/issues
 
 ## Latest News
 
@@ -47,9 +47,6 @@ Of note, smart targetting for group/raid has an issue with the current release, 
 
 1. New mana check for druids (everyone else can use the power check). Requires DruidManaBar addon to function. No point remaking the wheel and every druid needs the addon anyway.
 
-## Issues and Limitations
-
-1. Doesn't play nicely with SuperMacros.
 
 ## Your first few NerfedButtons
 
@@ -92,7 +89,7 @@ add a mana check to it so you don't shift out when lwo on mana?
 /nb powershift@Greater Healing Potion [mana@player>10%]
 ```
 
-### Rejuvenation and Regrowth with self-cast modifier
+#### Rejuvenation and Regrowth with self-cast modifier
 Rejuvenation on target if not buffed with it, then Regrowth on target (or on player if you hold down shift)
 ```
 /nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
@@ -101,7 +98,7 @@ Rejuvenation on target if not buffed with it, then Regrowth on target (or on pla
 /nb Regrowth@player [mod@player=shift]
 ```
 
-### Shorthand for super concise NBs!
+#### Shorthand for super concise NBs!
 All of your NB macros can be reduced to shorthand. See the section on Shorthand later
 ```
 /nb reju@t [m@t!s,b@t!reju]
