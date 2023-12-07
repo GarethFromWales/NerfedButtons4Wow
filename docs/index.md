@@ -58,6 +58,7 @@ All of your NB macros can be reduced to shorthand. See the section on Shorthand 
 1. Open the zip file and drag the folder NerfedButtons4Wow-1.X to your TurtleWow/Interface/Addons folder
 1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
 1. Restart Turtle WoW
+1. Open your spellbook and put Attack somewhere (anywhere) on your action bars. This is required so the NB can determine if you are autoattacking or not. You can put it out of the way on a sidebar, you won't be clicking it, it's just there for NB to query when using attack action.
 
 
 ## Latest News
@@ -639,8 +640,8 @@ Example:
 ```
 
 ```
-/nb Rejuvenation@player [combat@player=1]
-/nb Regrowth@player [combat@player!1]
+/nb reju@p [com@p=1]
+/nb regr@p [com@p!1]
 ```
 
 ##### cooldown (cd)  - (Fake) Cooldown

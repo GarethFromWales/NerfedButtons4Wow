@@ -161,7 +161,30 @@ function NB.FindSpellByName(spell)
 end
 
 
+--returns id of a spell from player's spellbook
+function NB.getSpellId(spell)
+	local i = 1
+	while true do
+	   local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL)
+	   if not spellName then
+		  do break end
+	   end
+	   if string.lower(spellName) == string.lower(spell) then
+	   return i; end;
+	   i = i + 1
+	end
+end;
 
+--Function to determine if spell or ability is on Cooldown, returns true or false. (For experimental mode that checks the cd based on your latency: uncomment the commented lines, and comment out the last return line)
+function NB.isSpellOnCd(spell)
+	local gameTime = GetTime();
+	local _,_, latency = GetNetStats();
+	local start,duration,_ = GetSpellCooldown(NB.getSpellId(spell), BOOKTYPE_SPELL);
+	local cdT = start + duration - gameTime;
+	latency = latency / 1000;
+	return (duration > latency);
+	--return (duration ~= 0);
+end;
 
 
 

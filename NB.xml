@@ -17,6 +17,9 @@
         this:RegisterEvent("ADDON_LOADED");
         this:RegisterEvent("BAG_UPDATE");
         this:RegisterEvent("SPELLS_CHANGED");
+        this:RegisterEvent("UNIT_SPELLCAST_START");
+        this:RegisterEvent("UNIT_SPELLCAST_SENT");
+        this:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED");
         self = {};
       </OnLoad>
       <OnEvent>

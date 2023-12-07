@@ -18,6 +18,8 @@ function NerfedButtons_EventHandler()
 	if (event=="VARIABLES_LOADED" ) then NerfedButtons_OnVariablesLoaded(); end
 	if (event=="BAG_UPDATE" ) then NB.populateItemCache() ; end
 	if (event=="SPELLS_CHANGED" ) then NB.populateSpellCache() ; end
+
+	
 end
 
 
@@ -173,6 +175,11 @@ function NB.slash_handler(msg)
 end
 
 function NB.doChecksAndAction(action_name, action_rank, action_type, action_target, smart_action_target, checks)
+
+		if action_type == "spell" and NB.isSpellOnCd(gsub(action_name,"%(%)", "")) then
+			--NB.print("ON CD:".. action_name)
+			return
+		end
 
 		-- Run all the checks. If they all pass then
 		-- do the action!
