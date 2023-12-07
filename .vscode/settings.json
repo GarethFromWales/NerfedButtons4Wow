@@ -55,6 +55,9 @@
         "GetAddOnInfo",
         "GetPartyMembers",
         "GetRaidMembers",
-        "UnitCreatureType"
+        "UnitCreatureType",
+        "GetNumPartyMembers",
+        "GetNumRaidMembers",
+        "GetNetStats"
     ]
 }

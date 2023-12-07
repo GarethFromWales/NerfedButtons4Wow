@@ -49,6 +49,9 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 
 1. New mana check for druids (everyone else can use the power check). Requires DruidManaBar addon to function. No point remaking the wheel and every druid needs the addon anyway.
 
+## Credit: 
+
+Some code has been borrowed from RoidMacros, SuperMacros and CerniesWonderfulFunctions, many thanks to the developers of those addons.
 
 ## Your first few NerfedButtons
 

@@ -2,8 +2,7 @@
 local NerfedButtonsVersion = "1.0.0-Vanilla";
 local NerfedButtonsAuthor  = "NerfedWar; Vanilla adaptation of NerfedButtons.";
 
--- Some code has been borrowed from RoidMacros, SuperMacros and other addons, many thanks to the developers of those addons.
-
+-- CREDITS: Some code has been borrowed from RoidMacros, SuperMacros and CerniesWonderfulFunctions, many thanks to the developers of those addons.
 
 if NB == nil then NB = {} end
 NB.cooldowns = {} -- global to hold fake cooldowns
