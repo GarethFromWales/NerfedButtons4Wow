@@ -10,6 +10,62 @@ Disclaimer: Understanding NerfedButtons requires a modicum of effort and the exe
 
 *An offline copy of this document can be found in the NerfedButtons4WoW addon /docs folder (in .md format).*
 
+## Installation
+
+1. Disable SuperMacros addon if you have it installed. SuperMacros has an issue with caaching of macros which make it really difficult to work out what macro code you are actually running at any time. Best to disable it if you plan to us NerfedButtons, at least for the time being until I can work out a fix.
+1. Download the latest source zip file from (https://github.com/GarethFromWales/NerfedButtons4Wow/releases/latest)
+1. Open the zip file and drag the folder NerfedButtons4Wow-1.X to your TurtleWow/Interface/Addons folder
+1. Rename the folder from NerfedButtons4Wow-1.X to NerfedButtons4Wow
+1. Restart Turtle WoW
+
+2. ## Issues and Limitations
+
+1. Doesn't play nicely with SuperMacros, will work on this in future.
+1. Smart targetting for group/raid has an issue with the current release, will prioritise fixing is.
+
+    Issue list is here: https://github.com/GarethFromWales/NerfedButtons4Wow/issues
+
+## Latest News
+
+1. Group and Raid smart targeting added but has issues (works fine when duoing) :
+
+    Keep Rejuvenation up on all group members with:
+
+    `/nb reju@g [b@s!reju]`
+
+1. Added new modifier keys check (shift/alt/delete):
+  
+    `/nb Regrowth@player [mod@player=shift]`
+
+1. Items can now be used as actions:
+    
+    `/nb Moonberry Juice@player [buff@player!Drink]`
+
+1. Added much more detail to the checks section of this document.
+
+1. Internal spell, action and item database to allow abbreviated actions now update on learning new spells and obtaining new items.
+
+1. New mana check for druids (everyone else can use the power check). Requires DruidManaBar addon to function. No point remaking the wheel and every druid needs the addon anyway.
+
+
+## Your first few NerfedButtons
+
+### A simple sequence
+
+NBs are written as macros. Unlike the Warhammer Online version of NB, there is no graphical user interface, everything must be done via macros (for now at least).
+
+The simplest NB would be one that simply attempts to cast a sequence of spells if they are off cooldown. NB performs basic checks like cooldown, range and positioning (think rogue's Backstab) automatically for you, so you don't need to specify such checks in your NBs. Here is a simple example of such a sequence:
+
+```
+/run if nil then CastSpellByName("Flame Shock") end
+/nb Flame Shock
+/nb Lightning Bolt
+```
+
+this will first attempt to cast `Flame Shock` at your current target, but if for some reason it cannot be cast (it has a 6 second cooldown), then will attempt to cast `Lightning Bolt`. Nice!
+
+The first line of the macro `/run if nil then CastSpellByName("Flame Shock") end` is unfortunately reuired for ALL macros to display and update an icon correctly in Vanilla WoW. Replace the spell/item name with whatever you want displayed on the icon.
+
 ## Simple examples
 Here are some simple examples to whet your appetitite...
 
@@ -33,7 +89,7 @@ add a mana check to it so you don't shift out when lwo on mana?
 /nb powershift@Greater Healing Potion [mana@player>10%]
 ```
 
-### Rejuvenation and Regrowth with self-cast modifier
+#### Rejuvenation and Regrowth with self-cast modifier
 Rejuvenation on target if not buffed with it, then Regrowth on target (or on player if you hold down shift)
 ```
 /nb Rejuvenation@target [mod@target!shift,buff@target!Rejuvenation]
@@ -42,7 +98,7 @@ Rejuvenation on target if not buffed with it, then Regrowth on target (or on pla
 /nb Regrowth@player [mod@player=shift]
 ```
 
-### Shorthand for super concise NBs!
+#### Shorthand for super concise NBs!
 All of your NB macros can be reduced to shorthand. See the section on Shorthand later
 ```
 /nb reju@t [m@t!s,b@t!reju]
