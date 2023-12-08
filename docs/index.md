@@ -272,7 +272,7 @@ Here is the NB I use to enter Prowl on my druid. It may seem a little complex...
 /run if nil then CastSpellByName("Prowl") end
 /nb Cat Form [form@player!Cat Form]
 /nb Prowl [buff@player!Prowl]
-/nb cancel@Prowl [cooldown@player>3Prowl]
+/nb cancel@Prowl [fakecooldown@player>3Prowl]
 /nb Track Humanoids@player [buff@player!Track Humanoids,form@player=Cat Form]
 ```
 
@@ -598,6 +598,22 @@ Form list:
 ["humanoid"] = "humanoid"
 ```
 
+
+
+##### cooldown(cd)  - Cooldown
+* `cooldown` (`cd`)  - checks whether another spell (not nessesarily the action) is on cooldown. Quite situational as you'd normally just line up the spells you want one after another and the one off cooldown would get acst anyway, but there may be a use...
+* Operator can be `=` or `!`.
+
+Example:
+```
+/nb War Stomp@target [cd@player=Bash]
+```
+
+```
+/nb ws@t [cd@p=bash]
+```
+
+
 ##### condition (con) - Condition
 * `condition` (`con`) - checks if the check_target is suffering from any conditions (poison/curse/magic/disease).
 * Operator can be `=` or `!`.
@@ -652,8 +668,8 @@ Example:
 /nb regr@p [com@p!1]
 ```
 
-##### cooldown (cd)  - (Fake) Cooldown
-* `cooldown` (`cd`)  - checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
+##### fakecooldown (cd)  - (Fake) Cooldown
+* `fakecooldown` (`fcd`)  - checks whether the spell was last cast more than X seconds ago. This is a fake cooldown check and has nothing to do with the actual spell cooldown. Useful to protect against spamming or to add a fake cooldown to spells so that you can cycle through them on one button.
 * Operator can be `>`  or `<`.
 
 Example that provides a button to enter Cat Form and Prowl, bt also using the fake cooldown check stop you from exiting Prowl if you mistakenly press the button a 3rd time within 3 seconds. Pressing the button after 3 seconds will exit you from prowling.
@@ -661,7 +677,7 @@ Example that provides a button to enter Cat Form and Prowl, bt also using the fa
 /run if nil then CastSpellByName("Prowl") end
 /nb cf [f@p!cat]
 /nb prow [b@p!Prowl]
-/nb cancel@Prowl [cd@player>3Prowl]
+/nb cancel@Prowl [fcd@player>3Prowl]
 ```
 
 ##### modifier (mod) - Modifier Key

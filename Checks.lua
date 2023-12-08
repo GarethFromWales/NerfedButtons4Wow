@@ -387,11 +387,11 @@ end
 
 
 -----------------------------------------
--- Check: Cooldown
--- cd@player>3Healing Touch
-function NB.check_cooldown(unit, operator, spellAndCooldown)
+-- Check: Fake Cooldown
+-- fcd@player>3Healing Touch
+function NB.check_fakecooldown(unit, operator, spellAndCooldown)
     if  operator ~= ">" and operator ~= "<" then
-        NB.error("Invalid operator passed to cooldown check, only > and < are allowed.")
+        NB.error("Invalid operator passed to fake cooldown check, only > and < are allowed.")
         return false
     end        
 
@@ -408,6 +408,39 @@ function NB.check_cooldown(unit, operator, spellAndCooldown)
         if time() > tonumber(NB.cooldowns[realSpellName]) + tonumber(numbers) then
             return true
         end
+    end
+
+    return false
+
+end
+
+
+-----------------------------------------
+-- Check: Cooldown
+-- cd@player=Enrage
+function NB.check_cooldown(unit, operator, spell)
+    if  operator ~= "=" and operator ~= "!" then
+        NB.error("Invalid operator passed to cooldown check, only = and ! are allowed.")
+        return false
+    end        
+
+    -- look up spell
+    local realSpellName = NB.getSpellFromCache(string.lower(spell))
+
+    -- get slot
+    local index, book = NB.FindSpell(realSpellName, '')
+
+    local start, duration, enabled, modRate = GetSpellCooldown(index, book)
+
+    if operator ==  "=" and start > 0 then
+        -- on cooldown
+        return true
+    elseif operator ==  "!" and start == 0 then
+        -- on cooldown
+        return true        
+    else
+        -- off cooldown
+        return false
     end
 
     return false
