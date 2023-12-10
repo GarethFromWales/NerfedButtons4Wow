@@ -393,13 +393,14 @@ Actions are either spelled out in full or abbreviated:
   * `player` (`p`) - cast on yourself
   * `target` (`t`) - cast on your target
   * `focus`  (`f`) - cast on your focus target
+  * `pet`  (`p`) - cast on your pet
 
   ```
   /nb [Rejuvenation@focus,health@focus<90]
   /nb [Wrath@target]
   ```
 
-#### Smart action targets
+#### Smart action targets (NOT WORKING PROPERLY in 1.7beta!)
 
   In addition there are special ```smart``` targets that are calculated at runtime based on the conditions associated with a NB. These smart targets include:
   
